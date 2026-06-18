@@ -130,6 +130,15 @@ startup_one/
 - [x] Briefing lido e analisado
 - [x] CLAUDE.md criado
 - [x] log.md criado
-- [ ] Projeto React inicializado
-- [ ] Telas construídas
+- [x] Projeto React inicializado (`top-filme/`)
+- [x] Design system configurado (Tailwind, fontes, paleta "Cinema Kawaii")
+- [x] Dados dos filmes e algoritmo de recomendação
+- [x] Landing Page
+- [x] Tela Cadastro/Login
+- [x] Página Principal (Home com histórico mockado)
+- [x] Fluxo de Perguntas (Quiz multi-step com animações)
+- [x] Página de Resultado (2 indicações + chips de atributos)
+- [x] Build verificado (`npm run build` ✓)
 - [ ] Deploy no Railway
+- [ ] Refinamento de design (pós-corrida)
+- [ ] Passo 2: backend, autenticação real, TMDB API
