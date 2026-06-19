@@ -173,7 +173,7 @@ export default function Home() {
           <div className="absolute inset-0 opacity-10">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i}
-                className="absolute rounded-full border border-white"
+                className="absolute rounded-full border border-bg"
                 style={{
                   width: `${80 + i * 50}px`, height: `${80 + i * 50}px`,
                   right: `-${20 + i * 25}px`, top: '50%',
@@ -181,25 +181,25 @@ export default function Home() {
                 }} />
             ))}
           </div>
-          <span className="absolute top-3 right-8 text-white/15 font-display text-3xl select-none">✦</span>
-          <span className="absolute bottom-3 right-24 text-white/10 font-display text-xl select-none">★</span>
-          <span className="absolute top-1/2 right-16 -translate-y-1/2 text-white/10 font-display text-sm select-none">✧</span>
+          <span className="absolute top-3 right-8 text-bg/20 font-display text-3xl select-none">✦</span>
+          <span className="absolute bottom-3 right-24 text-bg/15 font-display text-xl select-none">★</span>
+          <span className="absolute top-1/2 right-16 -translate-y-1/2 text-bg/15 font-display text-sm select-none">✧</span>
 
           <div className="relative z-10 flex items-center justify-between px-6 py-6">
             <div className="text-left">
-              <p className="font-body text-white/70 text-xs uppercase tracking-[0.15em] mb-1">Nova análise</p>
-              <p className="font-display font-bold text-white text-2xl">Iniciar jornada</p>
+              <p className="font-body text-bg/60 text-xs uppercase tracking-[0.15em] mb-1">Nova análise</p>
+              <p className="font-display font-bold text-bg text-2xl">Iniciar jornada</p>
               <div className="flex items-center gap-3 mt-2">
-                <span className="font-body text-white/60 text-xs">5 perguntas</span>
-                <span className="w-1 h-1 rounded-full bg-white/30" />
-                <span className="font-body text-white/60 text-xs">3 indicações</span>
-                <span className="w-1 h-1 rounded-full bg-white/30" />
-                <span className="font-body text-white/60 text-xs">&lt; 2 min</span>
+                <span className="font-body text-bg/60 text-xs">5 perguntas</span>
+                <span className="w-1 h-1 rounded-full bg-bg/30" />
+                <span className="font-body text-bg/60 text-xs">3 indicações</span>
+                <span className="w-1 h-1 rounded-full bg-bg/30" />
+                <span className="font-body text-bg/60 text-xs">&lt; 2 min</span>
               </div>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-white/15 border border-white/20
-                            flex items-center justify-center group-hover:bg-white/25 transition-colors flex-shrink-0">
-              <span className="text-white text-xl font-display font-bold">→</span>
+            <div className="w-12 h-12 rounded-2xl bg-bg/15 border border-bg/20
+                            flex items-center justify-center group-hover:bg-bg/25 transition-colors flex-shrink-0">
+              <span className="text-bg text-xl font-display font-bold">→</span>
             </div>
           </div>
         </button>
