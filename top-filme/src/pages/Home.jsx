@@ -9,7 +9,7 @@ const mockHistory = [
     estado: '😄', estadoLabel: 'Levinho',
     companhia: '👥 Amigos', destino: 'Animado', mundo: 'Épico',
     filme: 'Se Beber, Não Case!',
-    poster: `${T}/uluhlXubGu1VxU63boQJs7rZkz5.jpg`,
+    poster: `${T}/m0tQyMdp3fy5ooUOQkJMd1fQKBJ.jpg`,
     cor: 'bg-yellow', corBorder: 'border-yellow/25', corText: 'text-yellow',
   },
   {
@@ -155,7 +155,7 @@ export default function Home() {
             Como você está hoje?
           </p>
           <h1 className="font-display font-bold text-white text-3xl md:text-4xl leading-tight">
-            Hora de encontrar<br /><span className="text-pink">o seu filme.</span>
+            Hora de encontrar<br /><span className="text-lavender">o seu filme.</span>
           </h1>
         </div>
 
@@ -166,10 +166,10 @@ export default function Home() {
                      hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 animate-fade-in"
           style={{
             animationDelay: '0.1s', opacity: 0, animationFillMode: 'forwards',
-            boxShadow: '0 8px 40px rgba(255,45,120,0.25)',
+            boxShadow: '0 8px 40px rgba(0,222,182,0.2)',
           }}
         >
-          <div className="absolute inset-0 bg-pink" />
+          <div className="absolute inset-0 bg-mint" />
           <div className="absolute inset-0 opacity-10">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i}
@@ -237,12 +237,13 @@ export default function Home() {
 
           {/* Paginação */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 px-1">
+            <div className="flex items-center justify-between mt-4">
               <button
                 onClick={() => setHistPage(p => Math.max(0, p - 1))}
                 disabled={histPage === 0}
-                className="flex items-center gap-1.5 font-body text-xs text-white/30 hover:text-white/70
-                           transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+                className="font-body text-xs text-white/70 bg-surface border border-border
+                           rounded-xl px-3 py-1.5 hover:border-white/30 hover:text-white
+                           transition-all disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 ← Anterior
               </button>
@@ -252,7 +253,7 @@ export default function Home() {
                     key={i}
                     onClick={() => setHistPage(i)}
                     className={`rounded-full transition-all duration-300 ${
-                      i === histPage ? 'w-5 h-2 bg-pink' : 'w-2 h-2 bg-surface2 hover:bg-muted'
+                      i === histPage ? 'w-5 h-2 bg-lavender' : 'w-2 h-2 bg-white/20 hover:bg-white/40'
                     }`}
                   />
                 ))}
@@ -260,8 +261,9 @@ export default function Home() {
               <button
                 onClick={() => setHistPage(p => Math.min(totalPages - 1, p + 1))}
                 disabled={histPage === totalPages - 1}
-                className="flex items-center gap-1.5 font-body text-xs text-white/30 hover:text-white/70
-                           transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+                className="font-body text-xs text-white/70 bg-surface border border-border
+                           rounded-xl px-3 py-1.5 hover:border-white/30 hover:text-white
+                           transition-all disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 Próximo →
               </button>

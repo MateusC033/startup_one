@@ -100,12 +100,9 @@ export default function Landing() {
           }}
         >
           <span className="text-white">O filme </span>
-          <span className="text-yellow">certo</span>
+          <span className="text-mint">certo</span>
           <br />
-          <span className="relative inline-block">
-            <span className="text-pink">para agora.</span>
-            <span className="absolute -bottom-2 left-0 right-0 h-[3px] rounded-full bg-gradient-to-r from-pink via-lavender to-mint" />
-          </span>
+          <span className="text-lavender">para agora.</span>
         </h1>
 
         {/* Sub */}

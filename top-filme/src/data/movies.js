@@ -12,7 +12,7 @@ export const movies = [
   {
     id: 2,
     titulo: 'O Auto da Compadecida',
-    poster: `${T}/jRGqFgMkbWByEhGnRJg4YoAYrBL.jpg`,
+    poster: `${T}/imcOp1kJsCsAFCoOtY5OnPrFbAf.jpg`,
     tagline: 'A saga dos nordestinos mais espertos do sertão.',
     porQueAgora: 'Porque às vezes você precisa de uma história que faça você gargalhar e se emocionar ao mesmo tempo.',
     humor: 0.9, emocional: 0.6, acao: 0.4, reflexivo: 0.4, social: 0.8, atencao: 0.4,
@@ -60,7 +60,7 @@ export const movies = [
   {
     id: 8,
     titulo: 'Se Beber, Não Case!',
-    poster: `${T}/uluhlXubGu1VxU63boQJs7rZkz5.jpg`,
+    poster: `${T}/m0tQyMdp3fy5ooUOQkJMd1fQKBJ.jpg`,
     tagline: 'O que acontece em Vegas... você não vai acreditar.',
     porQueAgora: 'Para rir muito com a galera sem precisar de concentração alguma.',
     humor: 0.9, emocional: 0.3, acao: 0.3, reflexivo: 0.1, social: 0.8, atencao: 0.2,
