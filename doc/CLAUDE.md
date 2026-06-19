@@ -2,143 +2,237 @@
 
 > Arquivo de persistência de contexto para o agente Claude Code.
 > Ler integralmente ao iniciar nova sessão neste projeto.
-> Atualizado em: 2026-06-18
+> Atualizado em: 2026-06-18 (Sessão 2 — entrega FIAP concluída)
 
 ---
 
 ## Projeto
 
 **Top Filme** — plataforma web de recomendação de filmes por estado emocional.
-O usuário responde 3 perguntas visuais e recebe 2 indicações de filmes.
+O usuário responde 5 perguntas visuais e recebe 3 indicações de filmes em carrossel.
 
-**Reframing central:** o negócio real é B2B — dados psicográficos gerados pelas interações,
-vendidos para produtoras, agências e plataformas de streaming. O app é o instrumento de coleta.
-
----
-
-## Prazo e entregas
-
-- **Entrega Passo 1:** 18/06/2026 (hoje) — interface completa MOCKADA
-- **Passo 2 (pós-entrega):** backend real, autenticação, integração TMDB
-- **Passo 3 (opcional):** dashboard analítico
+**Reframing central (pitch FIAP):** o negócio real é B2B — dados psicográficos gerados
+pelas interações, vendidos para produtoras, agências e plataformas de streaming.
+O app é o instrumento de coleta.
 
 ---
 
-## Stack — Passo 1
+## Status atual
+
+**Passo 1 entregue.** Frontend mockado, sem backend, hospedado no Railway.
+
+- [x] Landing page
+- [x] Tela Cadastro/Login (simulada, sem auth real)
+- [x] Página Principal (Home — histórico mockado, CTA mint, paginação)
+- [x] Fluxo de Perguntas (Quiz 5 steps com animações)
+- [x] Página de Resultado (carrossel 3 filmes + chips de atributos)
+- [x] 52 filmes no catálogo com posters TMDB verificados
+- [x] Algoritmo cosine similarity + MMR
+- [x] Deploy Railway ativo (auto-deploy no push para master)
+- [ ] **Tornar repositório público** no GitHub (`MateusC033/startup_one`)
+
+---
+
+## Stack
 
 | Item | Tecnologia |
 |---|---|
-| Framework | Vite + React 18 |
-| Estilização | Tailwind CSS |
-| Lógica | JavaScript puro (frontend) |
-| Dados | JSON hardcoded |
-| Deploy | Railway (estático) |
+| Build | Vite 8 |
+| Framework | React 19 |
+| Estilização | Tailwind CSS 3 (não v4) |
+| Roteamento | React Router DOM 7 |
+| Dados | JSON hardcoded (`data/movies.js`) |
+| Estado transiente | `sessionStorage` (`tf_answers`, `tf_user`, `tf_quick_mood`) |
+| Deploy | Railway — branch `master`, auto-deploy |
+| Repositório | `https://github.com/MateusC033/startup_one.git` |
 
 ---
 
-## Telas a construir
-
-- [ ] **Landing page** — logo, frase de posicionamento, botão de acesso
-- [ ] **Cadastro/Login** — formulário simples, sem auth real (simular fluxo)
-- [ ] **Página principal** — histórico mockado + botão "Iniciar nova análise"
-- [ ] **Fluxo de perguntas** — 3 perguntas, multi-step, transição suave, sem reload
-- [ ] **Resultado** — 1 indicação principal + 1 alternativa + botão nova análise
-
----
-
-## Algoritmo de recomendação
-
-Cada filme tem um vetor de 6 dimensões (valores 0–1):
-`humor`, `emocional`, `acao`, `reflexivo`, `social`, `atencao`
-
-As respostas do usuário geram um vetor equivalente. Similaridade por produto escalar ponderado.
-
-### Mapeamento de respostas → vetor
-
-**Pergunta 1 — estado emocional:**
-- "Levinho, quero rir" → `{ humor:0.9, emocional:0.1, acao:0.2, reflexivo:0.1 }`
-- "Com vontade de sentir algo" → `{ humor:0.1, emocional:0.9, acao:0.2, reflexivo:0.5 }`
-- "Agitado, quero ação" → `{ humor:0.2, emocional:0.3, acao:0.9, reflexivo:0.2 }`
-- "Curioso, quero pensar" → `{ humor:0.2, emocional:0.5, acao:0.2, reflexivo:0.9 }`
-
-**Pergunta 2 — contexto social (dimensão `social`):**
-- "Sozinho" → 0.1
-- "Com alguém especial" → 0.4
-- "Com amigos" → 0.7
-- "Com a família" → 1.0
-
-**Pergunta 3 — atenção (dimensão `atencao`):**
-- "Pouco — só quero relaxar" → 0.1
-- "Médio — me envolvo sem esforço" → 0.5
-- "Total — pode ser intenso" → 0.9
-
----
-
-## Filmes do mock (12 filmes)
-
-| Filme | humor | emocional | acao | reflexivo | social | atencao |
-|---|---|---|---|---|---|---|
-| Interestelar | 0.1 | 0.8 | 0.4 | 0.9 | 0.3 | 0.9 |
-| O Auto da Compadecida | 0.9 | 0.6 | 0.4 | 0.4 | 0.8 | 0.4 |
-| Divertida Mente | 0.7 | 0.8 | 0.2 | 0.6 | 0.9 | 0.3 |
-| Nada de Novo no Front | 0.0 | 0.9 | 0.7 | 0.9 | 0.1 | 0.8 |
-| Mad Max: Estrada da Fúria | 0.1 | 0.4 | 0.9 | 0.4 | 0.4 | 0.6 |
-| Parasita | 0.3 | 0.8 | 0.5 | 0.9 | 0.3 | 0.9 |
-| A Vida é Bela | 0.6 | 0.9 | 0.1 | 0.6 | 0.6 | 0.5 |
-| Se Beber Não Case | 0.9 | 0.3 | 0.3 | 0.1 | 0.8 | 0.2 |
-| Clube da Luta | 0.2 | 0.7 | 0.6 | 0.9 | 0.1 | 0.9 |
-| O Rei Leão (1994) | 0.6 | 0.8 | 0.3 | 0.5 | 1.0 | 0.3 |
-| John Wick | 0.2 | 0.3 | 0.9 | 0.2 | 0.4 | 0.5 |
-| Comer, Rezar, Amar | 0.4 | 0.7 | 0.1 | 0.7 | 0.4 | 0.4 |
-
----
-
-## Design
-
-- Minimalista, moderno, fluido
-- Tema escuro com acentos vibrantes (tom cinema)
-- Tipografia limpa, espaçamento generoso
-- Transição suave entre perguntas (sem reload entre steps)
-- Click no card = avança automaticamente (sem botão "próximo")
-- Barra de progresso discreta no topo do fluxo
-
----
-
-## Entrega FIAP (template)
-
-1. **Descrição** — protótipo como primeiro instrumento de validação; fluxo empático; reframing B2B
-2. **Prints** — cada tela principal
-3. **Link** — deploy no Railway
-
----
-
-## Estrutura de diretórios do projeto
+## Estrutura de diretórios
 
 ```
 startup_one/
 ├── doc/
 │   ├── briefing_prototipo.md
 │   ├── CLAUDE.md          ← este arquivo
-│   └── log.md             ← log de trabalho
-└── (app — a criar)
+│   └── log.md             ← log de trabalho cronológico
+└── top-filme/
+    ├── src/
+    │   ├── index.css      — design system, variáveis CSS, utilitários Tailwind
+    │   ├── main.jsx       — entry point React
+    │   ├── App.jsx        — roteamento (/, /auth, /home, /quiz, /result)
+    │   ├── data/
+    │   │   └── movies.js  — 52 filmes com vetores e metadados
+    │   ├── utils/
+    │   │   └── recommend.js — algoritmo cosine similarity + MMR
+    │   └── pages/
+    │       ├── Landing.jsx
+    │       ├── Auth.jsx
+    │       ├── Home.jsx
+    │       ├── Quiz.jsx
+    │       └── Result.jsx
+    ├── tailwind.config.js
+    ├── vite.config.js
+    └── package.json
 ```
 
 ---
 
-## Estado atual
+## Design System
 
-- [x] Briefing lido e analisado
-- [x] CLAUDE.md criado
-- [x] log.md criado
-- [x] Projeto React inicializado (`top-filme/`)
-- [x] Design system configurado (Tailwind, fontes, paleta "Cinema Kawaii")
-- [x] Dados dos filmes e algoritmo de recomendação
-- [x] Landing Page
-- [x] Tela Cadastro/Login
-- [x] Página Principal (Home com histórico mockado)
-- [x] Fluxo de Perguntas (Quiz multi-step com animações)
-- [x] Página de Resultado (2 indicações + chips de atributos)
-- [x] Build verificado (`npm run build` ✓)
-- [ ] Deploy no Railway
-- [ ] Refinamento de design (pós-corrida)
-- [ ] Passo 2: backend, autenticação real, TMDB API
+**Paleta "Cinema Kawaii"** — fundo escuro, acentos vibrantes, sem gradientes complexos.
+
+| Token | Cor | Hex |
+|---|---|---|
+| `bg` | Fundo principal | `#0C0C0C` |
+| `surface` | Cards, painéis | `#141414` |
+| `surface2` | Inputs, badges | `#1C1C1C` |
+| `border` | Bordas sutis | `#2A2A2A` |
+| `pink` | Destaque principal | `#FF2D78` |
+| `yellow` | Acento alegre | `#FFE566` |
+| `mint` | Acento fresco | `#00DEB6` |
+| `lavender` | Acento suave | `#B490FF` |
+| `orange` | Acento vibrante | `#FF6B35` |
+
+**Tipografia:**
+- `font-display` → Space Grotesk (títulos, labels, números)
+- `font-body` → Plus Jakarta Sans (textos corridos, subtítulos)
+
+**Decoração recorrente:** estrela `✦` em `text-pink` nos cabeçalhos e CTAs.
+
+**Barra de cores:** faixa `h-1.5` com os 5 acentos em sequência (pink → yellow → mint → lavender → orange) no topo e rodapé de cada página.
+
+---
+
+## Padrão crítico de contraste — texto em fundo vibrante
+
+Sempre que um elemento tiver fundo em cor vibrante (mint, yellow, pink, orange, lavender),
+usar **texto escuro** em vez de branco:
+
+```jsx
+// Fundo vibrante → texto dark (bg = #0C0C0C)
+text-bg          // texto principal
+text-bg/60       // texto secundário
+bg-bg/15         // fundo de ícone/badge
+border-bg/20     // borda sutil
+```
+
+Aplicado em:
+- **Quiz:** hover nos cards de opção → `group` no `<button>` + `group-hover:text-bg`
+- **Home:** card CTA "Iniciar jornada" (bg-mint) → todos os internos em `text-bg`
+
+---
+
+## Algoritmo de Recomendação (`utils/recommend.js`)
+
+### Dimensões (6)
+
+`humor`, `emocional`, `acao`, `reflexivo`, `social`, `atencao`
+
+### Fluxo
+
+1. **`buildUserVector(answers)`** — soma vetores das respostas com pesos por pergunta,
+   normaliza dividindo pelo componente máximo
+2. **`cosineSim(a, b)`** — similaridade de cosseno entre dois vetores de 6 dimensões
+3. **`getRecommendations(answers)`** — ranking por cosine sim, depois MMR com λ=0.35
+   para selecionar top-3 diversificados
+
+### Pesos por pergunta
+
+```js
+const WEIGHTS = [1.5, 0.8, 1.0, 1.5, 1.2]
+// Q1 estado emocional (peso alto — sinal primário)
+// Q2 companhia (peso baixo — contexto secundário)
+// Q3 atenção (peso médio)
+// Q4 destino emocional (peso alto — sinal primário)
+// Q5 tipo de mundo (peso médio-alto)
+```
+
+### Por que cosine + MMR?
+
+Dot product simples recompensava filmes com muitos valores altos (ex: Cavaleiro das Trevas,
+Vingadores) que dominavam todos os cenários. Cosine similarity normaliza a magnitude.
+MMR garante que os 3 resultados não sejam variações do mesmo filme.
+
+---
+
+## Catálogo de filmes (`data/movies.js`)
+
+52 filmes. Cada entrada tem:
+
+```js
+{
+  id, titulo, tagline, porQueAgora,    // metadados textuais
+  poster,                              // URL completa TMDB w500
+  humor, emocional, acao, reflexivo, social, atencao  // scores 0–1
+}
+```
+
+**URL base dos posters:** `https://image.tmdb.org/t/p/w500/{poster_path}`
+
+**Atenção ao verificar posters:** alguns paths encontrados em buscas genéricas são 404.
+Sempre verificar com `curl -I <url>` antes de adicionar ao catálogo.
+
+---
+
+## Páginas — notas técnicas
+
+### Landing.jsx
+- Headline: "O filme **certo**" (`text-mint`) + "**para agora.**" (`text-lavender`)
+- Emojis flutuantes animados como decoração de fundo
+- Stats: `{ n: '5', label: 'cliques', color: 'text-mint' }` etc.
+- Botões CTA em `btn-primary` (pink)
+
+### Auth.jsx
+- Login/cadastro simulado; salva nickname em `sessionStorage.setItem('tf_user', nome)`
+- Redireciona para `/home` após submit
+
+### Home.jsx
+- Lê `tf_user` do sessionStorage para exibir nome
+- CTA card: `bg-mint`, todos elementos internos em `text-bg` (contraste dark)
+- Mood chips rápidos: salvam `tf_quick_mood` em sessionStorage e vão para `/quiz`
+- Histórico: 6 entradas mock, PAGE_SIZE=3, paginação com dots em `bg-lavender`
+
+### Quiz.jsx
+- 5 perguntas (`QUESTIONS` array), animação slide-in/slide-out entre steps
+- Click no card → avança automaticamente (sem botão "próximo")
+- Salva array de respostas: `sessionStorage.setItem('tf_answers', JSON.stringify(answers))`
+- Padrão `group` no button + `group-hover:text-bg` nos textos para legibilidade no hover
+
+### Result.jsx
+- Lê `tf_answers` do sessionStorage → `getRecommendations(answers)` → 3 filmes
+- Carrossel: card central (flex-1) + 2 laterais (`w-[29%]`), `items-center` no container
+- Fade + rotate com `locked` ref para evitar cliques duplos rápidos
+- Componente `<Poster>` reseta erro via `useEffect([src])` ao trocar de filme
+
+---
+
+## Deploy
+
+**Railway** — conectado ao GitHub `MateusC033/startup_one`, branch `master`.
+
+Para publicar uma alteração:
+```bash
+npm run build        # em top-filme/
+git add <arquivos>
+git commit -m "mensagem"
+git push origin master   # Railway deploya automaticamente
+```
+
+Build atual: ~287kb JS, 26kb CSS (gzip: 89kb / 5.6kb).
+
+---
+
+## Pendências futuras
+
+### Curto prazo (próxima sessão)
+- Tornar repositório público: Settings → Danger Zone → Make public no GitHub
+
+### Passo 2 (pós-FIAP)
+- Backend real: Django + MySQL (ou FastAPI + PostgreSQL)
+- Autenticação real (JWT ou session-based)
+- Integração com TMDB API (remover mock, buscar filmes em tempo real)
+- Salvar histórico do usuário no banco
+
+### Passo 3 (opcional)
+- Dashboard analítico B2B (dados psicográficos agregados)
