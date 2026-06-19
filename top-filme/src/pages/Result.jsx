@@ -189,10 +189,10 @@ export default function Result() {
         </div>
 
         {/* Carrossel 3 cards */}
-        <div className="flex items-start gap-3 md:gap-4 w-full max-w-xl mx-auto">
+        <div className="flex items-center gap-3 md:gap-4 w-full max-w-xl mx-auto">
 
-          {/* Esquerdo */}
-          <div className="w-[26%] flex-shrink-0 mt-8">
+          {/* Esquerdo — ~72% do centro */}
+          <div className="w-[29%] flex-shrink-0">
             <SideCard
               film={films[leftIdx]}
               onClick={() => rotate('left')}
@@ -206,8 +206,8 @@ export default function Result() {
             <CenterCard film={films[centerIdx]} fading={fading} />
           </div>
 
-          {/* Direito */}
-          <div className="w-[26%] flex-shrink-0 mt-8">
+          {/* Direito — ~72% do centro */}
+          <div className="w-[29%] flex-shrink-0">
             <SideCard
               film={films[rightIdx]}
               onClick={() => rotate('right')}

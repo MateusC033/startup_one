@@ -99,17 +99,12 @@ export default function Landing() {
             animationDelay: '0.1s', opacity: 0, animationFillMode: 'forwards',
           }}
         >
-          <span className="text-white">O filme certo</span><br />
+          <span className="text-white">O filme </span>
+          <span className="text-yellow">certo</span>
+          <br />
           <span className="relative inline-block">
             <span className="text-pink">para agora.</span>
-            <svg
-              className="absolute -bottom-2 left-0 w-full"
-              height="8" viewBox="0 0 300 8" fill="none"
-              style={{ opacity: 0.5 }}
-            >
-              <path d="M0 6 Q75 2 150 6 Q225 10 300 6"
-                stroke="#FF2D78" strokeWidth="3" strokeLinecap="round" fill="none" />
-            </svg>
+            <span className="absolute -bottom-2 left-0 right-0 h-[3px] rounded-full bg-gradient-to-r from-pink via-lavender to-mint" />
           </span>
         </h1>
 
@@ -144,7 +139,7 @@ export default function Landing() {
       <div className="relative z-10 flex items-center divide-x divide-border border-t border-border
                       bg-surface/60 backdrop-blur-sm px-6 py-4 md:px-12">
         {[
-          { n: '✦',      label: 'rápido',     color: 'text-mint'    },
+          { n: '5',       label: 'cliques',    color: 'text-mint'    },
           { n: '3',      label: 'indicações', color: 'text-yellow'  },
           { n: '100%',   label: 'gratuito',   color: 'text-lavender'},
           { n: '< 1min', label: 'de você',    color: 'text-pink'    },

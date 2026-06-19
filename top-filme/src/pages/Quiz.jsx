@@ -314,7 +314,7 @@ export default function Quiz() {
                   onClick={() => handleSelect(opt.key)}
                   disabled={!!selected}
                   className={`
-                    relative overflow-hidden flex items-center gap-4 p-4 rounded-2xl
+                    group relative overflow-hidden flex items-center gap-4 p-4 rounded-2xl
                     border border-border text-left transition-all duration-200
                     ${opt.hover} ${opt.glow}
                     ${isSelected
@@ -327,26 +327,26 @@ export default function Quiz() {
                   {/* Emoji em círculo colorido */}
                   <div className={`w-12 h-12 flex-shrink-0 rounded-xl flex items-center justify-center text-2xl
                     transition-all duration-200
-                    ${isSelected ? 'bg-white/20' : `bg-surface2 ${opt.text} group-hover:bg-white/10`}`}>
+                    ${isSelected ? 'bg-black/15' : 'bg-surface2'}`}>
                     {opt.emoji}
                   </div>
 
-                  {/* Texto */}
+                  {/* Texto — no hover o bg vira cor vibrante, então força texto escuro */}
                   <div className="flex-1 min-w-0">
                     <p className={`font-display font-semibold text-sm leading-tight transition-colors
-                      ${isSelected ? 'text-white' : 'text-white/80'}`}>
+                      ${isSelected ? 'text-bg font-bold' : 'text-white/80 group-hover:text-bg'}`}>
                       {opt.texto}
                     </p>
                     <p className={`font-body text-xs mt-0.5 transition-colors
-                      ${isSelected ? 'text-white/70' : 'text-white/30'}`}>
+                      ${isSelected ? 'text-bg/60' : 'text-white/30 group-hover:text-bg/60'}`}>
                       {opt.sub}
                     </p>
                   </div>
 
                   {/* Check mark */}
                   {isSelected && (
-                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                      <span className="text-white text-xs font-bold">✓</span>
+                    <div className="w-6 h-6 rounded-full bg-black/15 flex items-center justify-center flex-shrink-0">
+                      <span className="text-bg text-xs font-bold">✓</span>
                     </div>
                   )}
 
