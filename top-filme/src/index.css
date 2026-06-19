@@ -3,11 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background-color: #0C0C0C;
@@ -17,46 +13,52 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, h4, h5 {
-    font-family: 'Space Grotesk', sans-serif;
-  }
+  h1, h2, h3, h4, h5 { font-family: 'Space Grotesk', sans-serif; }
 
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #161616; }
+  ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 3px; }
+  ::selection { background: #FF2D78; color: white; }
+}
 
-  ::-webkit-scrollbar-track {
-    background: #161616;
-  }
+/* Blobs de cor com animação */
+@keyframes blobPulse {
+  0%, 100% { opacity: 0.05; transform: scale(1); }
+  50%       { opacity: 0.12; transform: scale(1.08); }
+}
+@keyframes blobPulse2 {
+  0%, 100% { opacity: 0.04; transform: scale(1.05); }
+  50%       { opacity: 0.10; transform: scale(0.95); }
+}
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0px) rotate(var(--rot)); }
+  33%       { transform: translateY(-12px) rotate(calc(var(--rot) + 6deg)); }
+  66%       { transform: translateY(-6px) rotate(calc(var(--rot) - 4deg)); }
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: #2A2A2A;
-    border-radius: 3px;
-  }
+.blob-animate-1 { animation: blobPulse  6s ease-in-out infinite;      animation-fill-mode: both; opacity: 0.05; }
+.blob-animate-2 { animation: blobPulse2 8s ease-in-out infinite 1s;  animation-fill-mode: both; opacity: 0.04; }
+.blob-animate-3 { animation: blobPulse  10s ease-in-out infinite 2s; animation-fill-mode: both; opacity: 0.05; }
 
-  ::selection {
-    background: #FF2D78;
-    color: white;
-  }
+.emoji-bg {
+  position: absolute;
+  user-select: none;
+  pointer-events: none;
+  line-height: 1;
+  animation: emojiFloat var(--dur, 6s) ease-in-out infinite var(--delay, 0s);
 }
 
 @layer components {
   .btn-primary {
     @apply bg-pink text-white font-display font-semibold px-8 py-4 rounded-2xl
            transition-all duration-200 hover:scale-105 active:scale-95
-           hover:shadow-[0_0_20px_rgba(255,45,120,0.4)];
+           hover:shadow-[0_0_24px_rgba(255,45,120,0.45)];
   }
-
   .btn-ghost {
     @apply border border-border text-white/70 font-body font-medium px-6 py-3 rounded-xl
            transition-all duration-200 hover:border-pink/50 hover:text-white;
   }
-
   .card-surface {
     @apply bg-surface border border-border rounded-2xl;
-  }
-
-  .star-deco {
-    @apply text-yellow font-display font-bold select-none pointer-events-none;
   }
 }
