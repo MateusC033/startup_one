@@ -4,7 +4,7 @@ export const movies = [
   {
     id: 1,
     titulo: 'Interestelar',
-    poster: `${T}/rAiYTfKGqDCRIIqo664sY9XMTer.jpg`,
+    poster: `${T}/tR1XVa5bxgdh2bRw2u0DzrgkO2l.jpg`,
     tagline: 'O amor é a única coisa que transcende o tempo e o espaço.',
     porQueAgora: 'Para quando você quer se sentir pequeno diante do universo — e mesmo assim esperançoso.',
     humor: 0.1, emocional: 0.8, acao: 0.4, reflexivo: 0.9, social: 0.3, atencao: 0.9,
@@ -28,7 +28,7 @@ export const movies = [
   {
     id: 4,
     titulo: 'Nada de Novo no Front',
-    poster: `${T}/hEr2TB9IiIlfNajMxI7AzAiTn5o.jpg`,
+    poster: `${T}/qmcKs0Aoft7MBdBoj1haZyPRgM2.jpg`,
     tagline: 'A guerra não tem vencedores.',
     porQueAgora: 'Para quando você precisa sentir algo real, brutal e honesto sobre o que os humanos são capazes.',
     humor: 0.0, emocional: 0.9, acao: 0.7, reflexivo: 0.9, social: 0.1, atencao: 0.8,
@@ -84,7 +84,7 @@ export const movies = [
   {
     id: 11,
     titulo: 'John Wick',
-    poster: `${T}/fZPSd91PGMHGsOdePMoZtDi39DK.jpg`,
+    poster: `${T}/lBcQGk1ygGM2wYmpypFrPp0YohN.jpg`,
     tagline: 'Não mate o cachorro de um assassino.',
     porQueAgora: 'Ação de alto nível, sem parar, sem enrolação. Vai direto ao ponto.',
     humor: 0.2, emocional: 0.3, acao: 0.9, reflexivo: 0.2, social: 0.4, atencao: 0.5,
@@ -92,7 +92,7 @@ export const movies = [
   {
     id: 12,
     titulo: 'Comer, Rezar, Amar',
-    poster: `${T}/aBSMSXBGHLsShSgkL3M1GjxbBDl.jpg`,
+    poster: `${T}/5CMhiQnnLsKx5bgtndz6C5vhgRr.jpg`,
     tagline: 'Às vezes, se perder é se encontrar.',
     porQueAgora: 'Para quando você precisa de paz, de comida boa e de uma história que inspire.',
     humor: 0.4, emocional: 0.7, acao: 0.1, reflexivo: 0.7, social: 0.4, atencao: 0.4,

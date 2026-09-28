@@ -4,6 +4,7 @@ import Auth from './pages/Auth'
 import Home from './pages/Home'
 import Quiz from './pages/Quiz'
 import Result from './pages/Result'
+import Dashboard from './pages/Dashboard'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/result" element={<Result />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

@@ -108,6 +108,74 @@ function HistoryCard({ item }) {
   )
 }
 
+function PerfilEmocional({ onVerPainel }) {
+  const humores = [
+    { key: 'sentir', label: 'Sentir algo', valor: 42, cor: 'bg-lavender' },
+    { key: 'rir',    label: 'Levinho',     valor: 25, cor: 'bg-yellow'   },
+    { key: 'pensar', label: 'Curioso',     valor: 21, cor: 'bg-mint'     },
+    { key: 'acao',   label: 'Ação',        valor: 12, cor: 'bg-orange'   },
+  ]
+  const dominante = humores[0]
+
+  return (
+    <div className="md:col-span-1">
+      <p className="font-body text-white/30 text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
+        <span className="text-lavender text-xs">✦</span> Seu perfil
+      </p>
+
+      <div className="rounded-2xl bg-surface border border-border p-5 space-y-5">
+
+        {/* Total de análises */}
+        <div>
+          <p className="font-body text-white/40 text-[10px] uppercase tracking-widest mb-1">Análises feitas</p>
+          <p className="font-display font-bold text-white text-3xl leading-none">12</p>
+        </div>
+
+        {/* Humor dominante */}
+        <div>
+          <p className="font-body text-white/40 text-[10px] uppercase tracking-widest mb-2">Humor dominante</p>
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-lavender/15 border border-lavender/30">
+            <span className="text-lavender text-xs">✦</span>
+            <span className="font-display font-semibold text-lavender text-sm">{dominante.label}</span>
+          </span>
+        </div>
+
+        {/* Distribuição em barras finas */}
+        <div>
+          <p className="font-body text-white/40 text-[10px] uppercase tracking-widest mb-3">Distribuição</p>
+          <div className="space-y-2">
+            {humores.map(h => (
+              <div key={h.key}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-body text-white/60 text-xs">{h.label}</span>
+                  <span className="font-display text-white/80 text-xs tabular-nums">{h.valor}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-surface2 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${h.cor} transition-all duration-700`}
+                    style={{ width: `${h.valor}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA para dashboard */}
+        <button
+          onClick={onVerPainel}
+          className="w-full font-body text-xs text-white/70 bg-surface2 border border-border
+                     rounded-xl px-4 py-2.5 hover:border-lavender/40 hover:text-white
+                     transition-all flex items-center justify-center gap-2 group"
+        >
+          <span>Ver painel completo</span>
+          <span className="text-lavender group-hover:translate-x-0.5 transition-transform">→</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const navigate = useNavigate()
   const [histPage, setHistPage] = useState(0)
@@ -136,7 +204,17 @@ export default function Home() {
           <span className="font-display font-bold text-white text-lg tracking-tight">Top Filme</span>
         </div>
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 bg-surface border border-border rounded-full px-3 py-1.5">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="hidden sm:inline-flex items-center gap-1.5 bg-surface border border-border
+                       rounded-full px-3 py-1.5 font-body text-xs text-white/60
+                       hover:border-lavender/40 hover:text-white transition-colors"
+            title="Painel B2B — visão do assinante"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-lavender" />
+            Painel
+          </button>
+          <div className="hidden md:flex items-center gap-2 bg-surface border border-border rounded-full px-3 py-1.5">
             <span className="text-white/30 text-xs font-body">Bem-vindo,</span>
             <span className="text-white text-xs font-body font-medium">{user}</span>
           </div>
@@ -146,7 +224,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="flex-1 px-5 py-6 md:px-10 max-w-2xl mx-auto w-full space-y-6">
+      <div className="flex-1 px-5 py-6 md:px-10 max-w-5xl mx-auto w-full space-y-6">
 
         {/* Saudação */}
         <div className="animate-fade-in">
@@ -226,49 +304,57 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Histórico */}
-        <div className="animate-fade-in" style={{ animationDelay: '0.2s', opacity: 0, animationFillMode: 'forwards' }}>
-          <p className="font-body text-white/30 text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
-            <span className="text-pink text-xs">✦</span> Análises recentes
-          </p>
-          <div className="space-y-2">
-            {visibleHistory.map(item => <HistoryCard key={item.id} item={item} />)}
+        {/* Grid: histórico (2 col) + perfil emocional (1 col) em desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in"
+             style={{ animationDelay: '0.2s', opacity: 0, animationFillMode: 'forwards' }}>
+
+          {/* Histórico */}
+          <div className="md:col-span-2">
+            <p className="font-body text-white/30 text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
+              <span className="text-pink text-xs">✦</span> Análises recentes
+            </p>
+            <div className="space-y-2">
+              {visibleHistory.map(item => <HistoryCard key={item.id} item={item} />)}
+            </div>
+
+            {/* Paginação */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  onClick={() => setHistPage(p => Math.max(0, p - 1))}
+                  disabled={histPage === 0}
+                  className="font-body text-xs text-white/70 bg-surface border border-border
+                             rounded-xl px-3 py-1.5 hover:border-white/30 hover:text-white
+                             transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ← Anterior
+                </button>
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setHistPage(i)}
+                      className={`rounded-full transition-all duration-300 ${
+                        i === histPage ? 'w-5 h-2 bg-lavender' : 'w-2 h-2 bg-white/20 hover:bg-white/40'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setHistPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={histPage === totalPages - 1}
+                  className="font-body text-xs text-white/70 bg-surface border border-border
+                             rounded-xl px-3 py-1.5 hover:border-white/30 hover:text-white
+                             transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  Próximo →
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Paginação */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
-              <button
-                onClick={() => setHistPage(p => Math.max(0, p - 1))}
-                disabled={histPage === 0}
-                className="font-body text-xs text-white/70 bg-surface border border-border
-                           rounded-xl px-3 py-1.5 hover:border-white/30 hover:text-white
-                           transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                ← Anterior
-              </button>
-              <div className="flex items-center gap-1.5">
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setHistPage(i)}
-                    className={`rounded-full transition-all duration-300 ${
-                      i === histPage ? 'w-5 h-2 bg-lavender' : 'w-2 h-2 bg-white/20 hover:bg-white/40'
-                    }`}
-                  />
-                ))}
-              </div>
-              <button
-                onClick={() => setHistPage(p => Math.min(totalPages - 1, p + 1))}
-                disabled={histPage === totalPages - 1}
-                className="font-body text-xs text-white/70 bg-surface border border-border
-                           rounded-xl px-3 py-1.5 hover:border-white/30 hover:text-white
-                           transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                Próximo →
-              </button>
-            </div>
-          )}
+          {/* Perfil emocional do usuário */}
+          <PerfilEmocional onVerPainel={() => navigate('/dashboard')} />
         </div>
       </div>
     </div>

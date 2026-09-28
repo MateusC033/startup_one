@@ -67,13 +67,23 @@ export default function Landing() {
           <span className="text-pink font-display font-bold text-2xl">✦</span>
           <span className="font-display font-bold text-white text-lg tracking-tight">Top Filme</span>
         </div>
-        <button
-          onClick={() => navigate('/auth')}
-          className="font-body text-white/50 text-sm hover:text-white transition-colors
-                     border border-border rounded-full px-4 py-1.5 hover:border-white/20 bg-bg/60 backdrop-blur-sm"
-        >
-          Entrar
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="hidden sm:inline-block font-body text-white/40 text-xs hover:text-white/80 transition-colors
+                       border border-border rounded-full px-3 py-1.5 hover:border-white/20 bg-bg/60 backdrop-blur-sm"
+            title="Painel de Inteligência (B2B)"
+          >
+            Para produtoras
+          </button>
+          <button
+            onClick={() => navigate('/auth')}
+            className="font-body text-white/50 text-sm hover:text-white transition-colors
+                       border border-border rounded-full px-4 py-1.5 hover:border-white/20 bg-bg/60 backdrop-blur-sm"
+          >
+            Entrar
+          </button>
+        </div>
       </header>
 
       {/* ── Hero ──────────────────────────────────────────────── */}

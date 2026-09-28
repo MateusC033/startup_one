@@ -292,20 +292,20 @@ export default function Quiz() {
       <main className="flex-1 flex flex-col justify-center px-5 pb-8 pt-4 md:px-10">
         <div
           key={step}
-          className={`w-full max-w-lg mx-auto ${animState === 'in' ? 'animate-slide-in' : 'animate-slide-out'}`}
+          className={`w-full max-w-2xl mx-auto ${animState === 'in' ? 'animate-slide-in' : 'animate-slide-out'}`}
         >
           {/* Pergunta */}
-          <div className="mb-8">
-            <p className="font-body text-white/30 text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
+          <div className="mb-8 md:mb-10">
+            <p className="font-body text-white/30 text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
               <span className="text-yellow">✦</span> {current.hint}
             </p>
-            <h2 className="font-display font-bold text-white text-2xl md:text-3xl leading-tight">
+            <h2 className="font-display font-bold text-white text-2xl md:text-4xl lg:text-5xl leading-[1.05]">
               {current.pergunta}
             </h2>
           </div>
 
           {/* Cards de opção */}
-          <div className={`grid gap-3 ${current.options.length === 3 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
+          <div className={`grid gap-3 md:gap-4 ${current.options.length === 3 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
             {current.options.map((opt, i) => {
               const isSelected = selected === opt.key
               return (
@@ -314,7 +314,7 @@ export default function Quiz() {
                   onClick={() => handleSelect(opt.key)}
                   disabled={!!selected}
                   className={`
-                    group relative overflow-hidden flex items-center gap-4 p-4 rounded-2xl
+                    group relative overflow-hidden flex items-center gap-4 p-4 md:p-5 rounded-2xl
                     border border-border text-left transition-all duration-200
                     ${opt.hover} ${opt.glow}
                     ${isSelected
@@ -325,7 +325,7 @@ export default function Quiz() {
                   style={{ animationDelay: `${i * 0.05}s` }}
                 >
                   {/* Emoji em círculo colorido */}
-                  <div className={`w-12 h-12 flex-shrink-0 rounded-xl flex items-center justify-center text-2xl
+                  <div className={`w-12 h-12 md:w-14 md:h-14 flex-shrink-0 rounded-xl flex items-center justify-center text-2xl md:text-3xl
                     transition-all duration-200
                     ${isSelected ? 'bg-black/15' : 'bg-surface2'}`}>
                     {opt.emoji}
@@ -333,11 +333,11 @@ export default function Quiz() {
 
                   {/* Texto — no hover o bg vira cor vibrante, então força texto escuro */}
                   <div className="flex-1 min-w-0">
-                    <p className={`font-display font-semibold text-sm leading-tight transition-colors
+                    <p className={`font-display font-semibold text-sm md:text-base leading-tight transition-colors
                       ${isSelected ? 'text-bg font-bold' : 'text-white/80 group-hover:text-bg'}`}>
                       {opt.texto}
                     </p>
-                    <p className={`font-body text-xs mt-0.5 transition-colors
+                    <p className={`font-body text-xs md:text-sm mt-0.5 transition-colors
                       ${isSelected ? 'text-bg/60' : 'text-white/30 group-hover:text-bg/60'}`}>
                       {opt.sub}
                     </p>

@@ -63,7 +63,7 @@ function CenterCard({ film, fading }) {
         <Poster
           src={film.poster} alt={film.titulo}
           className="w-full object-cover"
-          style={{ aspectRatio: '2/3', maxHeight: '320px', objectFit: 'cover', objectPosition: 'top' }}
+          style={{ aspectRatio: '2/3', maxHeight: '260px', objectFit: 'cover', objectPosition: 'top' }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-transparent" />
         <div className="absolute top-3 left-3 bg-pink rounded-full px-3 py-1">
@@ -72,16 +72,16 @@ function CenterCard({ film, fading }) {
       </div>
 
       {/* Info */}
-      <div className="p-5">
-        <h2 className="font-display font-bold text-white text-xl leading-tight mb-1">{film.titulo}</h2>
-        <p className="font-body italic text-white/40 text-xs mb-4">"{film.tagline}"</p>
+      <div className="p-4">
+        <h2 className="font-display font-bold text-white text-lg leading-tight mb-1">{film.titulo}</h2>
+        <p className="font-body italic text-white/40 text-xs mb-3">"{film.tagline}"</p>
 
-        <div className="flex items-start gap-2 p-3 rounded-xl bg-surface2 mb-4">
+        <div className="flex items-start gap-2 p-3 rounded-xl bg-surface2 mb-3">
           <span className="text-pink text-sm mt-0.5 flex-shrink-0">✦</span>
-          <p className="font-body text-white/70 text-sm leading-relaxed">{film.porQueAgora}</p>
+          <p className="font-body text-white/70 text-xs leading-relaxed">{film.porQueAgora}</p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           <Chips movie={film} />
         </div>
       </div>
@@ -171,10 +171,10 @@ export default function Result() {
         </button>
       </header>
 
-      <main className="flex-1 px-4 pt-6 pb-10 md:px-8 flex flex-col">
+      <main className="flex-1 px-4 pt-4 pb-6 md:px-8 flex flex-col">
 
         {/* Heading */}
-        <div className="text-center mb-6 animate-fade-in">
+        <div className="text-center mb-4 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-surface border border-border rounded-full px-4 py-1.5 mb-3">
             <span className="text-yellow text-xs">✦</span>
             <span className="font-body text-white/40 text-xs uppercase tracking-widest">Para o seu momento</span>
@@ -189,7 +189,7 @@ export default function Result() {
         </div>
 
         {/* Carrossel 3 cards */}
-        <div className="flex items-center gap-3 md:gap-4 w-full max-w-xl mx-auto">
+        <div className="flex items-start gap-3 md:gap-4 w-full max-w-xl mx-auto">
 
           {/* Esquerdo — ~72% do centro */}
           <div className="w-[29%] flex-shrink-0">
@@ -218,7 +218,7 @@ export default function Result() {
         </div>
 
         {/* Dots */}
-        <div className="flex items-center justify-center gap-2 mt-5">
+        <div className="flex items-center justify-center gap-2 mt-4">
           {films.map((_, i) => (
             <button
               key={i}
@@ -234,7 +234,7 @@ export default function Result() {
         </div>
 
         {/* CTAs */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-3 max-w-sm mx-auto w-full">
+        <div className="mt-4 flex flex-col sm:flex-row gap-3 max-w-sm mx-auto w-full">
           <button
             onClick={() => { sessionStorage.removeItem('tf_answers'); navigate('/quiz') }}
             className="btn-primary flex-1 text-center"

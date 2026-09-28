@@ -15,10 +15,20 @@ export default function Auth() {
   const isRegister = mode === 'register'
 
   return (
-    <div className="min-h-dvh bg-bg flex flex-col">
+    <div className="relative min-h-dvh bg-bg flex flex-col overflow-hidden">
+
+      {/* Blobs de cor animados — mais discretos que a Landing */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="blob-animate-1 absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-pink blur-[130px]"
+             style={{ opacity: 0.04 }} />
+        <div className="blob-animate-2 absolute top-1/3 -right-40 w-[400px] h-[400px] rounded-full bg-lavender blur-[110px]"
+             style={{ opacity: 0.04 }} />
+        <div className="blob-animate-3 absolute -bottom-32 left-1/4 w-[400px] h-[400px] rounded-full bg-mint blur-[120px]"
+             style={{ opacity: 0.03 }} />
+      </div>
 
       {/* Top color bar */}
-      <div className="flex h-1 w-full">
+      <div className="relative z-10 flex h-1 w-full">
         <div className="flex-1 bg-pink" />
         <div className="flex-1 bg-yellow" />
         <div className="flex-1 bg-mint" />
@@ -27,15 +37,21 @@ export default function Auth() {
       </div>
 
       {/* Nav */}
-      <header className="flex items-center px-6 pt-6 md:px-12">
+      <header className="relative z-10 flex items-center justify-between px-6 pt-6 md:px-12">
         <button onClick={() => navigate('/')} className="flex items-center gap-2 group">
           <span className="text-pink font-display font-bold text-xl group-hover:scale-110 transition-transform">✦</span>
           <span className="font-display font-bold text-white text-lg tracking-tight">Top Filme</span>
         </button>
+        <button
+          onClick={() => navigate('/')}
+          className="font-body text-white/40 text-sm hover:text-white transition-colors flex items-center gap-1.5"
+        >
+          <span>←</span> Voltar
+        </button>
       </header>
 
       {/* Main */}
-      <main className="flex flex-1 items-center justify-center px-6 py-12">
+      <main className="relative z-10 flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md animate-fade-in">
 
           {/* Card */}
@@ -135,6 +151,13 @@ export default function Auth() {
           </div>
         </div>
       </main>
+
+      {/* Bottom color bar */}
+      <div className="relative z-10 flex h-1.5 w-full">
+        <div className="flex-1 bg-pink" /><div className="flex-1 bg-yellow" />
+        <div className="flex-1 bg-mint" /><div className="flex-1 bg-lavender" />
+        <div className="flex-1 bg-orange" />
+      </div>
     </div>
   )
 }
