@@ -12,7 +12,7 @@ import {
 function formatDuracao(seg) {
   const m = Math.floor(seg / 60)
   const s = seg % 60
-  return `${m}'${s.toString().padStart(2, '0')}"`
+  return `${m}min ${s.toString().padStart(2, '0')}s`
 }
 
 /* ═══ Componentes ══════════════════════════════════════════════ */
@@ -420,11 +420,11 @@ function PainelBloqueado({ status, empresa, onSair }) {
                     Entrar como empresa
                   </button>
                   <button
-                    onClick={() => navigate('/planos')}
+                    onClick={() => navigate('/servicos')}
                     className="w-full font-body text-sm rounded-xl py-3 border border-gray-300
                                text-gray-700 hover:border-gray-400 hover:text-gray-900 transition-all"
                   >
-                    Conhecer os planos
+                    Conhecer os serviços
                   </button>
                 </>
               ) : (
@@ -544,7 +544,7 @@ export default function Dashboard() {
       <header className="border-b border-gray-200 bg-[#FFFFFF]">
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between">
           <button
-            onClick={() => navigate('/para-empresas')}
+            onClick={() => navigate('/dashboard')}
             className="flex items-center gap-2 group"
           >
             <span className="text-[#FF2D78] font-display font-bold text-xl">✦</span>
@@ -555,14 +555,28 @@ export default function Dashboard() {
               Painel de Inteligência
             </span>
           </button>
-          <div className="flex items-center gap-3">
+          <nav className="flex items-center gap-1">
             <button
-              onClick={() => navigate('/para-empresas')}
-              className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors"
+              className="font-body text-sm font-semibold text-gray-900
+                         px-3 py-1.5 rounded-lg bg-gray-100 transition-all"
             >
-              ← Página de empresas
+              Painel
             </button>
-          </div>
+            <button
+              onClick={() => navigate('/painel/conta')}
+              className="font-body text-sm text-gray-600 hover:text-gray-900
+                         px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
+            >
+              Minha conta
+            </button>
+            <button
+              onClick={() => navigate('/servicos')}
+              className="font-body text-sm text-gray-600 hover:text-gray-900
+                         px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
+            >
+              Serviços
+            </button>
+          </nav>
         </div>
       </header>
 

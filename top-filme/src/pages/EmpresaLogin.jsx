@@ -132,11 +132,11 @@ export default function EmpresaLogin() {
           </button>
           <nav className="flex items-center gap-1">
             <button
-              onClick={() => navigate('/planos')}
+              onClick={() => navigate('/servicos')}
               className="hidden sm:inline-block font-body text-sm text-gray-600 hover:text-gray-900
                          px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
             >
-              Planos
+              Serviços
             </button>
             <button
               onClick={() => navigate('/para-empresas')}
@@ -241,10 +241,10 @@ export default function EmpresaLogin() {
           {/* Links auxiliares */}
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
             <button
-              onClick={() => navigate('/planos')}
+              onClick={() => navigate('/servicos')}
               className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors"
             >
-              Ver planos e preços
+              Ver nossos serviços
             </button>
             <span className="hidden sm:inline text-gray-300">·</span>
             <button

@@ -140,7 +140,13 @@ def empresa_registro(request):
         password_hash=make_password(d["password"]),
         cnpj=d.get("cnpj") or None,
     )
-    Assinatura.objects.create(empresa=empresa, plano=d.get("plano", "painel"), ativo=False)
+    Assinatura.objects.create(
+        empresa=empresa,
+        plano=d.get("plano", "painel"),
+        ativo=True,           # liberado temporariamente
+        inicio=timezone.now(),
+        mes_atual=1,
+    )
     token = EmpresaToken.objects.create(empresa=empresa, key=secrets.token_hex(24))
     return Response({
         "token": token.key,

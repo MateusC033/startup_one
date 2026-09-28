@@ -98,15 +98,28 @@ class EmpresaLoginSerializer(serializers.Serializer):
 class EmpresaSerializer(serializers.ModelSerializer):
     assinatura_ativa = serializers.SerializerMethodField()
     plano_ativo = serializers.SerializerMethodField()
+    mes_atual = serializers.SerializerMethodField()
+    inicio_assinatura = serializers.SerializerMethodField()
 
     class Meta:
         model = Empresa
         fields = ("id", "nome", "email_corp", "cnpj", "criado_em",
-                  "assinatura_ativa", "plano_ativo")
+                  "assinatura_ativa", "plano_ativo", "mes_atual", "inicio_assinatura")
+
+    def _assinatura_ativa(self, obj):
+        return obj.assinaturas.filter(ativo=True).first()
 
     def get_assinatura_ativa(self, obj):
-        return obj.assinaturas.filter(ativo=True).exists()
+        return self._assinatura_ativa(obj) is not None
 
     def get_plano_ativo(self, obj):
-        a = obj.assinaturas.filter(ativo=True).first()
+        a = self._assinatura_ativa(obj)
         return a.get_plano_display() if a else None
+
+    def get_mes_atual(self, obj):
+        a = self._assinatura_ativa(obj)
+        return a.mes_atual if a else 0
+
+    def get_inicio_assinatura(self, obj):
+        a = self._assinatura_ativa(obj)
+        return a.inicio.isoformat() if a and a.inicio else None

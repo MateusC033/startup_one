@@ -48,7 +48,8 @@ class Assinatura(models.Model):
     ]
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name="assinaturas")
     plano = models.CharField(max_length=20, choices=PLANO_CHOICES, default="painel")
-    ativo = models.BooleanField(default=False)  # começa inativo; admin ativa manualmente
+    ativo = models.BooleanField(default=True)   # liberado temporariamente: novos cadastros já ativos
+    mes_atual = models.PositiveIntegerField(default=1)  # nº de meses ativos (mock para o painel)
     inicio = models.DateTimeField(null=True, blank=True)
     fim = models.DateTimeField(null=True, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)

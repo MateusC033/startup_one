@@ -100,11 +100,11 @@ export default function ParaEmpresas() {
           </button>
           <nav className="flex items-center gap-1">
             <button
-              onClick={() => navigate('/planos')}
+              onClick={() => navigate('/servicos')}
               className="hidden sm:inline-block font-body text-sm text-gray-600 hover:text-gray-900
                          px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
             >
-              Planos
+              Serviços
             </button>
             <button
               onClick={() => navigate('/empresas/login')}
@@ -143,11 +143,11 @@ export default function ParaEmpresas() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
             <button
-              onClick={() => navigate('/planos')}
+              onClick={() => navigate('/servicos')}
               className="font-body text-sm font-semibold rounded-xl px-8 py-3.5
                          bg-[#FF2D78] text-white hover:bg-[#E5236A] transition-all"
             >
-              Ver planos e preços
+              Ver nossos serviços
             </button>
             <a
               href="mailto:vendas@topfilme.com.br?subject=Diagn%C3%B3stico%20B2B"
@@ -162,14 +162,9 @@ export default function ParaEmpresas() {
         {/* Números — prova quantitativa da base atual */}
         <section className="border-y border-gray-200 bg-[#FFFFFF]">
           <div className="max-w-5xl mx-auto px-5 md:px-8 py-10 md:py-12">
-            <div className="flex items-baseline justify-between mb-6 flex-wrap gap-2">
-              <p className="font-body text-xs uppercase tracking-widest text-gray-500">
-                Base de teste atual
-              </p>
-              <span className="font-body text-xs text-gray-400">
-                {formatarPeriodo(stats)}
-              </span>
-            </div>
+            <p className="font-body text-xs uppercase tracking-widest text-gray-500 mb-6">
+              Base de teste atual
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
               <Stat valor={total} label="sinais psicográficos coletados" />
               <Stat valor={usuarios} label="perfis emocionais únicos" />
@@ -283,16 +278,16 @@ export default function ParaEmpresas() {
               Pronto para ver o<br className="hidden sm:block" /> que os catálogos <span className="text-[#FF2D78]">não veem</span>?
             </h2>
             <p className="font-body text-gray-600 text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-8">
-              Conheça os planos disponíveis ou fale com o time de vendas para
+              Conheça os serviços disponíveis ou fale com o time de vendas para
               um diagnóstico do seu contexto.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
               <button
-                onClick={() => navigate('/planos')}
+                onClick={() => navigate('/servicos')}
                 className="font-body text-sm font-semibold rounded-xl px-8 py-3.5
                            bg-[#FF2D78] text-white hover:bg-[#E5236A] transition-all"
               >
-                Ver planos e preços
+                Ver serviços
               </button>
               <a
                 href="mailto:vendas@topfilme.com.br?subject=Contato%20B2B"
@@ -318,9 +313,9 @@ export default function ParaEmpresas() {
                  className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">
                 vendas@topfilme.com.br
               </a>
-              <button onClick={() => navigate('/planos')}
+              <button onClick={() => navigate('/servicos')}
                       className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">
-                Planos
+                Serviços
               </button>
               <button onClick={() => navigate('/empresas/login')}
                       className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">

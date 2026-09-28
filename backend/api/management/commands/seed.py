@@ -177,18 +177,20 @@ class Command(BaseCommand):
 
         # ── Empresas demo ──
         empresas_demo = [
-            ("Netflix Brasil",  "demo@netflix.demo.topfilme.local", True),
-            ("Globo Filmes",    "demo@globo.demo.topfilme.local",   False),
-            ("Prime Video LatAm","demo@prime.demo.topfilme.local",  False),
+            ("Netflix Brasil",   "demo@netflix.demo.topfilme.local", 2),
+            ("Globo Filmes",     "demo@globo.demo.topfilme.local",   1),
+            ("Prime Video LatAm","demo@prime.demo.topfilme.local",   3),
         ]
-        for nome, email, ativa in empresas_demo:
+        for nome, email, mes in empresas_demo:
             emp, criada = Empresa.objects.get_or_create(
                 email_corp=email,
                 defaults={"nome": nome, "password_hash": make_password("empresa1234")},
             )
             if criada:
-                Assinatura.objects.create(empresa=emp, plano="painel", ativo=ativa,
-                                          inicio=timezone.now() if ativa else None)
+                Assinatura.objects.create(
+                    empresa=emp, plano="painel",
+                    ativo=True, inicio=timezone.now(), mes_atual=mes,
+                )
         self.stdout.write(self.style.SUCCESS(f"{len(empresas_demo)} empresas demo prontas."))
 
         self.stdout.write(self.style.SUCCESS(

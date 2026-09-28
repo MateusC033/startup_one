@@ -9,6 +9,8 @@ import ParaEmpresas from './pages/ParaEmpresas'
 import Planos from './pages/Planos'
 import EmpresaLogin from './pages/EmpresaLogin'
 import Perfil from './pages/Perfil'
+import Servicos from './pages/Servicos'
+import PainelConta from './pages/PainelConta'
 
 export default function App() {
   return (
@@ -21,7 +23,9 @@ export default function App() {
         <Route path="/result" element={<Result />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/para-empresas" element={<ParaEmpresas />} />
-        <Route path="/planos" element={<Planos />} />
+        <Route path="/servicos" element={<Servicos />} />
+        <Route path="/planos" element={<Navigate to="/servicos" replace />} />
+        <Route path="/painel/conta" element={<PainelConta />} />
         <Route path="/empresas/login" element={<EmpresaLogin />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="*" element={<Navigate to="/" replace />} />
