@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   kpis, estadoEmocional, destinoEmocional, companhia,
-  horariosPico, topFilmes, insight,
+  horariosPico, topFilmes, insight, insightSecundario,
+  heatmapEmoHora, demografia,
 } from '../data/dashboardData'
 
 /* ═══ Utilidades ═══════════════════════════════════════════════ */
@@ -186,23 +187,160 @@ function PosterMini({ src, alt }) {
   )
 }
 
-function InsightCard({ dados }) {
+function InsightCard({ dados, variante = 'primario' }) {
+  const ehPrimario = variante === 'primario'
   return (
-    <div className="rounded-2xl border border-gray-200 bg-[#FFFFFF] p-6 md:p-8">
+    <div className="rounded-2xl border border-gray-200 bg-[#FFFFFF] p-6 h-full">
       <div className="flex items-center gap-2 mb-4">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#FF2D78]" />
+        <span className={`w-1.5 h-1.5 rounded-full ${ehPrimario ? 'bg-[#FF2D78]' : 'bg-gray-700'}`} />
         <span className="font-body text-xs uppercase tracking-widest text-gray-500">
           {dados.categoria}
         </span>
       </div>
-      <div className="flex items-start gap-6 md:gap-8">
-        <span className="font-display font-bold text-[#FF2D78] text-5xl md:text-6xl leading-none flex-shrink-0">
+      <div className="flex items-start gap-5">
+        <span className={`font-display font-bold leading-none flex-shrink-0 ${
+          ehPrimario ? 'text-[#FF2D78] text-5xl md:text-6xl' : 'text-gray-900 text-4xl md:text-5xl'
+        }`}>
           {dados.numero}
         </span>
-        <p className="font-body text-gray-700 text-base md:text-lg leading-relaxed pt-1">
+        <p className="font-body text-gray-700 text-sm md:text-base leading-relaxed pt-1">
           {dados.frase}
         </p>
       </div>
+    </div>
+  )
+}
+
+function HeatmapEmoHora({ dados }) {
+  const linhas = [
+    { chave: 'sentir', label: 'Sentir algo' },
+    { chave: 'rir',    label: 'Levinho'     },
+    { chave: 'pensar', label: 'Curioso'     },
+    { chave: 'acao',   label: 'Ação'        },
+  ]
+
+  // Encontra célula de pico global
+  let picoValor = 0, picoLinha = 0, picoCol = 0
+  linhas.forEach((l, i) => {
+    dados[l.chave].forEach((v, j) => {
+      if (v > picoValor) { picoValor = v; picoLinha = i; picoCol = j }
+    })
+  })
+
+  const marcos = [0, 6, 12, 18, 23]
+
+  return (
+    <div>
+      <div className="flex gap-1">
+        {/* Rótulos das linhas */}
+        <div className="flex flex-col gap-1 pr-2 pt-0.5">
+          {linhas.map(l => (
+            <div key={l.chave} className="h-6 md:h-7 flex items-center">
+              <span className="font-body text-xs text-gray-600 whitespace-nowrap">{l.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Grade */}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col gap-1">
+            {linhas.map((l, i) => (
+              <div key={l.chave} className="flex gap-[3px]">
+                {dados[l.chave].map((v, j) => {
+                  const ehPico = i === picoLinha && j === picoCol
+                  const opacidade = Math.max(v / 100, 0.04)
+                  return (
+                    <div
+                      key={j}
+                      className={`flex-1 h-6 md:h-7 rounded-sm transition-all hover:ring-2 hover:ring-gray-400 ${
+                        ehPico ? 'ring-2 ring-[#FF2D78]' : ''
+                      }`}
+                      style={{
+                        background: ehPico
+                          ? '#FF2D78'
+                          : `rgba(17, 24, 39, ${opacidade})`,
+                      }}
+                      title={`${l.label} · ${j}h — ${v}`}
+                    />
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+
+          {/* Escala horizontal */}
+          <div className="flex justify-between mt-2 px-0.5">
+            {marcos.map(h => (
+              <span key={h} className="font-body text-[10px] text-gray-400 tabular-nums">
+                {h.toString().padStart(2, '0')}h
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <p className="font-body text-xs text-gray-500 mt-4">
+        Pico global: <span className="text-[#FF2D78] font-semibold">Sentir algo às {picoCol}h</span>.
+        Legenda: mais escuro = mais volume.
+      </p>
+    </div>
+  )
+}
+
+function Demografia({ dados }) {
+  const emocoes = [
+    { chave: 'sentir', label: 'Sentir algo', tom: '#111827' },
+    { chave: 'rir',    label: 'Levinho',     tom: '#4B5563' },
+    { chave: 'pensar', label: 'Curioso',     tom: '#9CA3AF' },
+    { chave: 'acao',   label: 'Ação',        tom: '#D1D5DB' },
+  ]
+
+  return (
+    <div>
+      {/* Legenda */}
+      <div className="flex flex-wrap gap-4 mb-5">
+        {emocoes.map(e => (
+          <div key={e.chave} className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm" style={{ background: e.tom }} />
+            <span className="font-body text-xs text-gray-600">{e.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Faixas */}
+      <ul className="space-y-4">
+        {dados.map(faixa => (
+          <li key={faixa.faixa}>
+            <div className="flex items-baseline justify-between mb-1.5">
+              <span className="font-display font-semibold text-sm text-gray-900">
+                {faixa.faixa} anos
+              </span>
+              <span className="font-body text-xs text-gray-500 tabular-nums">
+                {faixa.peso}% do total
+              </span>
+            </div>
+            <div className="flex h-2.5 rounded-full overflow-hidden bg-gray-100">
+              {emocoes.map(e => (
+                <div
+                  key={e.chave}
+                  style={{
+                    width: `${faixa.humores[e.chave]}%`,
+                    background: e.tom,
+                  }}
+                  title={`${e.label}: ${faixa.humores[e.chave]}%`}
+                />
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-3 mt-1.5">
+              {emocoes.map(e => (
+                <span key={e.chave} className="font-body text-[11px] text-gray-500 tabular-nums">
+                  {e.label} {faixa.humores[e.chave]}%
+                </span>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -266,24 +404,24 @@ export default function Dashboard() {
         {/* KPIs */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <KPICard
-            label="Análises coletadas"
+            label="Sinais psicográficos"
             valor={kpis.totalAnalises.toLocaleString('pt-BR')}
             sub="+ 214 vs. mês anterior"
           />
           <KPICard
-            label="Usuários únicos"
+            label="Perfis emocionais únicos"
             valor={kpis.usuariosUnicos.toLocaleString('pt-BR')}
-            sub="2,7 análises por usuário"
+            sub="2,7 sinais por perfil"
           />
           <KPICard
-            label="Tempo médio de sessão"
+            label="Tempo médio de decisão"
             valor={formatDuracao(kpis.tempoMedioSeg)}
             sub="do quiz ao resultado"
           />
           <KPICard
-            label="Retorno em 7 dias"
+            label="Recorrência semanal"
             valor={`${Math.round(kpis.retorno7d * 100)}%`}
-            sub="usuários com 2ª análise"
+            sub="perfis com 2ª análise em 7d"
           />
         </section>
 
@@ -367,6 +505,38 @@ export default function Dashboard() {
 
         </section>
 
+        {/* Heatmap emoção × hora */}
+        <section>
+          <div className="rounded-2xl border border-gray-200 bg-[#FFFFFF] p-6">
+            <div className="flex items-baseline justify-between mb-1">
+              <h2 className="font-display font-semibold text-gray-900 text-base">
+                Cruzamento emoção × hora do dia
+              </h2>
+              <span className="font-body text-xs text-gray-400">Q1 × 24h</span>
+            </div>
+            <p className="font-body text-xs text-gray-500 mb-5">
+              Onde cada estado emocional se concentra ao longo do dia — a base para segmentar janelas comerciais.
+            </p>
+            <HeatmapEmoHora dados={heatmapEmoHora} />
+          </div>
+        </section>
+
+        {/* Segmentação demográfica */}
+        <section>
+          <div className="rounded-2xl border border-gray-200 bg-[#FFFFFF] p-6">
+            <div className="flex items-baseline justify-between mb-1">
+              <h2 className="font-display font-semibold text-gray-900 text-base">
+                Perfil por faixa etária
+              </h2>
+              <span className="font-body text-xs text-gray-400">Estado emocional × idade</span>
+            </div>
+            <p className="font-body text-xs text-gray-500 mb-5">
+              Distribuição dos estados emocionais por segmento etário — direciona ativação de campanhas B2B.
+            </p>
+            <Demografia dados={demografia} />
+          </div>
+        </section>
+
         {/* Top filmes */}
         <section>
           <div className="rounded-2xl border border-gray-200 bg-[#FFFFFF] p-6">
@@ -383,12 +553,15 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Insight */}
+        {/* Insights */}
         <section>
           <p className="font-body text-xs uppercase tracking-widest text-gray-400 mb-3">
-            Insight do período
+            Insights do período
           </p>
-          <InsightCard dados={insight} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InsightCard dados={insight} variante="primario" />
+            <InsightCard dados={insightSecundario} variante="secundario" />
+          </div>
         </section>
 
         {/* Rodapé */}
