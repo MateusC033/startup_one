@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api, auth } from '../utils/api'
 
 /* Mapeia domínio → nome de empresa para simular reconhecimento corporativo */
 const DOMINIOS_CONHECIDOS = {
@@ -13,6 +14,9 @@ const DOMINIOS_CONHECIDOS = {
   'o2filmes.com':     'O2 Filmes',
   'gullane.com':      'Gullane Filmes',
   'conspiração.com':  'Conspiração',
+  'netflix.demo.topfilme.local': 'Netflix Brasil',
+  'globo.demo.topfilme.local':   'Globo Filmes',
+  'prime.demo.topfilme.local':   'Prime Video LatAm',
 }
 
 function inferirEmpresa(email) {
@@ -47,28 +51,48 @@ function Campo({ label, type = 'text', value, onChange, placeholder, required, h
 
 export default function EmpresaLogin() {
   const navigate = useNavigate()
-  const [modo, setModo] = useState('login') // 'login' | 'cadastro'
+  const [modo, setModo] = useState('login')
   const [form, setForm] = useState({ email: '', senha: '', cnpj: '', empresa: '' })
+  const [erro, setErro] = useState('')
+  const [carregando, setCarregando] = useState(false)
 
   const empresaInferida = inferirEmpresa(form.email)
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const nomeEmpresa = form.empresa
-      || empresaInferida
-      || (form.email ? `Empresa · ${form.email.split('@')[0]}` : 'Empresa demonstração')
-
-    sessionStorage.setItem('tf_empresa', JSON.stringify({
-      nome: nomeEmpresa,
-      email: form.email,
-      cnpj: form.cnpj || null,
-      plano: 'Painel de Inteligência',
-      ativo: true,
-    }))
-    navigate('/dashboard')
-  }
-
   const isCadastro = modo === 'cadastro'
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setErro('')
+    setCarregando(true)
+    try {
+      const nomeEmpresa = form.empresa || empresaInferida || `Empresa · ${form.email.split('@')[0]}`
+      const resp = isCadastro
+        ? await api.empresaRegister({
+            nome: nomeEmpresa,
+            email_corp: form.email,
+            password: form.senha,
+            cnpj: form.cnpj || '',
+            plano: 'painel',
+          })
+        : await api.empresaLogin({ email_corp: form.email, password: form.senha })
+
+      auth.setEmpresaToken(resp.token)
+      auth.setEmpresa({
+        nome: resp.empresa.nome,
+        email: resp.empresa.email_corp,
+        cnpj: resp.empresa.cnpj,
+        plano: resp.empresa.plano_ativo || 'Painel de Inteligência',
+        ativo: resp.empresa.assinatura_ativa,
+      })
+      navigate('/dashboard')
+    } catch (err) {
+      const msg = err?.data?.detail
+        || (err?.data && typeof err.data === 'object' ? Object.values(err.data).flat().join(' ') : '')
+        || 'Erro ao autenticar. Verifique se o backend está rodando.'
+      setErro(msg)
+    } finally {
+      setCarregando(false)
+    }
+  }
 
   return (
     <div className="min-h-dvh bg-[#F8F9FA] text-gray-900 flex flex-col">
@@ -156,12 +180,20 @@ export default function EmpresaLogin() {
                 />
               )}
 
+              {erro && (
+                <div className="rounded-xl border border-[#FF2D78]/40 bg-[#FF2D78]/5 px-3 py-2">
+                  <p className="font-body text-[#FF2D78] text-xs">{erro}</p>
+                </div>
+              )}
+
               <button
                 type="submit"
+                disabled={carregando}
                 className="w-full font-body text-sm font-semibold rounded-xl py-3
-                           bg-[#FF2D78] text-white hover:bg-[#E5236A] transition-all mt-2"
+                           bg-[#FF2D78] text-white hover:bg-[#E5236A] transition-all mt-2
+                           disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isCadastro ? 'Criar conta empresa' : 'Entrar'}
+                {carregando ? 'Aguarde…' : (isCadastro ? 'Criar conta empresa' : 'Entrar')}
               </button>
             </form>
 

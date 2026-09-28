@@ -1,18 +1,54 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api, auth } from '../utils/api'
 
 export default function Auth() {
   const navigate = useNavigate()
-  const [mode, setMode] = useState('login') // 'login' | 'register'
-  const [form, setForm] = useState({ email: '', senha: '', nickname: '', nascimento: '' })
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    sessionStorage.setItem('tf_user', form.nickname || form.email.split('@')[0])
-    navigate('/home')
-  }
+  const [mode, setMode] = useState('login')
+  const [form, setForm] = useState({
+    email: '', senha: '', nickname: '', nascimento: '', aceite: false,
+  })
+  const [erro, setErro] = useState('')
+  const [carregando, setCarregando] = useState(false)
 
   const isRegister = mode === 'register'
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setErro('')
+
+    if (isRegister && !form.aceite) {
+      setErro('É preciso aceitar os termos de uso de dados.')
+      return
+    }
+
+    setCarregando(true)
+    try {
+      const resp = isRegister
+        ? await api.register({
+            email: form.email,
+            nickname: form.nickname,
+            nascimento: form.nascimento || null,
+            password: form.senha,
+            aceite_lgpd: form.aceite,
+          })
+        : await api.login({ identificador: form.email, password: form.senha })
+
+      auth.setToken(resp.token)
+      auth.setUser(resp.user)
+      sessionStorage.setItem('tf_user', resp.user.nickname || resp.user.email.split('@')[0])
+      navigate('/home')
+    } catch (err) {
+      const msg = err?.data?.detail
+        || (err?.data && typeof err.data === 'object'
+            ? Object.values(err.data).flat().join(' ')
+            : '')
+        || 'Erro ao autenticar. Verifique se o backend está no ar.'
+      setErro(msg)
+    } finally {
+      setCarregando(false)
+    }
+  }
 
   return (
     <div className="relative min-h-dvh bg-bg flex flex-col overflow-hidden">
@@ -111,8 +147,36 @@ export default function Auth() {
                 required
               />
 
-              <button type="submit" className="btn-primary w-full text-center mt-2">
-                {isRegister ? 'Criar conta ✦' : 'Entrar ✦'}
+              {isRegister && (
+                <label className="flex items-start gap-2.5 text-left cursor-pointer group pt-1">
+                  <input
+                    type="checkbox"
+                    checked={form.aceite}
+                    onChange={e => setForm(f => ({ ...f, aceite: e.target.checked }))}
+                    className="mt-0.5 w-4 h-4 rounded border-border bg-surface2 text-pink
+                               focus:ring-pink/30 cursor-pointer accent-pink"
+                    required
+                  />
+                  <span className="font-body text-white/60 text-xs leading-relaxed">
+                    Aceito que meus dados anonimizados de uso (respostas do quiz, horário,
+                    dispositivo) sejam usados para gerar inteligência de mercado agregada.
+                    Posso revogar a qualquer momento em <span className="text-white/80">Perfil</span>.
+                  </span>
+                </label>
+              )}
+
+              {erro && (
+                <div className="rounded-xl border border-pink/40 bg-pink/10 px-3 py-2">
+                  <p className="font-body text-pink text-xs">{erro}</p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={carregando}
+                className="btn-primary w-full text-center mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {carregando ? 'Aguarde…' : (isRegister ? 'Criar conta ✦' : 'Entrar ✦')}
               </button>
             </form>
 
@@ -122,20 +186,6 @@ export default function Auth() {
               <span className="font-body text-white/30 text-xs">ou</span>
               <div className="flex-1 h-px bg-border" />
             </div>
-
-            {/* Google */}
-            <button
-              onClick={handleSubmit}
-              className="w-full flex items-center justify-center gap-3 bg-surface2 border border-border rounded-xl py-3 font-body text-white/70 text-sm hover:border-white/20 hover:text-white transition-all"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-              </svg>
-              Continuar com Google
-            </button>
 
             {/* Toggle */}
             <p className="text-center font-body text-white/40 text-sm mt-6">

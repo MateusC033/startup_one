@@ -1,7 +1,65 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api, auth } from '../utils/api'
 
 const T = 'https://image.tmdb.org/t/p/w500'
+
+const HUMOR_META = {
+  rir:    { emoji: '😄', label: 'Levinho',    cor: 'bg-yellow',   corBorder: 'border-yellow/25',   corText: 'text-yellow'   },
+  sentir: { emoji: '😢', label: 'Sentir algo',cor: 'bg-lavender', corBorder: 'border-lavender/25', corText: 'text-lavender' },
+  acao:   { emoji: '⚡', label: 'Ação',       cor: 'bg-orange',   corBorder: 'border-orange/25',   corText: 'text-orange'   },
+  pensar: { emoji: '🤔', label: 'Curioso',    cor: 'bg-mint',     corBorder: 'border-mint/25',     corText: 'text-mint'     },
+}
+
+const COMPANHIA_LABEL = {
+  sozinho:  '👤 Sozinho', amigos: '👥 Amigos', especial: '💑 Especial', familia: '👨‍👩‍👧 Família',
+}
+
+const DESTINO_LABEL = {
+  aliviado: 'Aliviado', pensativo: 'Pensativo', inspirado: 'Inspirado', animado: 'Animado',
+}
+
+const MUNDO_LABEL = {
+  real: 'Real', epico: 'Épico', intimo: 'Íntimo', surpresa: 'Surpresas',
+}
+
+function formatarData(iso) {
+  const dt = new Date(iso)
+  const hoje = new Date()
+  const ontem = new Date(); ontem.setDate(ontem.getDate() - 1)
+  const mesmoDia = (a, b) => a.toDateString() === b.toDateString()
+  if (mesmoDia(dt, hoje))  return 'Hoje'
+  if (mesmoDia(dt, ontem)) return 'Ontem'
+  return dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+}
+
+function formatarHora(iso) {
+  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+}
+
+function analiseParaCard(a) {
+  const q1 = a.respostas?.q1 || 'sentir'
+  const q2 = a.respostas?.q2 || 'sozinho'
+  const q4 = a.respostas?.q4 || 'aliviado'
+  const q5 = a.respostas?.q5 || 'real'
+  const meta = HUMOR_META[q1] || HUMOR_META.sentir
+  const filme = a.recomendacoes?.[0] || {}
+  return {
+    id: a.id,
+    data: formatarData(a.criado_em),
+    hora: formatarHora(a.criado_em),
+    estado: meta.emoji,
+    estadoLabel: meta.label,
+    companhia: COMPANHIA_LABEL[q2] || q2,
+    destino: DESTINO_LABEL[q4] || q4,
+    mundo: MUNDO_LABEL[q5] || q5,
+    filme: filme.titulo || 'Análise sem título',
+    poster: filme.poster,
+    cor: meta.cor,
+    corBorder: meta.corBorder,
+    corText: meta.corText,
+  }
+}
 
 const mockHistory = [
   {
@@ -108,14 +166,19 @@ function HistoryCard({ item }) {
   )
 }
 
-function PerfilEmocional({ onVerPainel }) {
-  const humores = [
-    { key: 'sentir', label: 'Sentir algo', valor: 42, cor: 'bg-lavender' },
-    { key: 'rir',    label: 'Levinho',     valor: 25, cor: 'bg-yellow'   },
-    { key: 'pensar', label: 'Curioso',     valor: 21, cor: 'bg-mint'     },
-    { key: 'acao',   label: 'Ação',        valor: 12, cor: 'bg-orange'   },
-  ]
-  const dominante = humores[0]
+function PerfilEmocional({ onVerPainel, perfilReal }) {
+  const cores = { sentir: 'bg-lavender', rir: 'bg-yellow', pensar: 'bg-mint', acao: 'bg-orange' }
+  const totalReal = perfilReal?.total ?? 0
+  const humores = perfilReal?.distribuicao?.length
+    ? perfilReal.distribuicao.map(d => ({ ...d, cor: cores[d.key] }))
+    : [
+        { key: 'sentir', label: 'Sentir algo', valor: 42, cor: 'bg-lavender' },
+        { key: 'rir',    label: 'Levinho',     valor: 25, cor: 'bg-yellow'   },
+        { key: 'pensar', label: 'Curioso',     valor: 21, cor: 'bg-mint'     },
+        { key: 'acao',   label: 'Ação',        valor: 12, cor: 'bg-orange'   },
+      ]
+  const dominante = perfilReal?.humor_dominante || humores[0]
+  const total = totalReal || 12
 
   return (
     <div className="md:col-span-1">
@@ -128,7 +191,7 @@ function PerfilEmocional({ onVerPainel }) {
         {/* Total de análises */}
         <div>
           <p className="font-body text-white/40 text-[10px] uppercase tracking-widest mb-1">Análises feitas</p>
-          <p className="font-display font-bold text-white text-3xl leading-none">12</p>
+          <p className="font-display font-bold text-white text-3xl leading-none">{total}</p>
         </div>
 
         {/* Humor dominante */}
@@ -179,11 +242,30 @@ function PerfilEmocional({ onVerPainel }) {
 export default function Home() {
   const navigate = useNavigate()
   const [histPage, setHistPage] = useState(0)
-  const user = sessionStorage.getItem('tf_user') || 'Visitante'
-  const initial = user[0].toUpperCase()
+  const [historico, setHistorico] = useState(null)
+  const [perfil, setPerfil] = useState(null)
 
-  const totalPages = Math.ceil(mockHistory.length / PAGE_SIZE)
-  const visibleHistory = mockHistory.slice(histPage * PAGE_SIZE, (histPage + 1) * PAGE_SIZE)
+  const userData = auth.getUser()
+  const user = userData?.nickname || sessionStorage.getItem('tf_user') || 'Visitante'
+  const initial = user[0]?.toUpperCase() || 'V'
+
+  useEffect(() => {
+    if (!auth.isLogged()) return
+    api.minhasAnalises().then(lista => {
+      setHistorico(lista.map(analiseParaCard))
+    }).catch(() => setHistorico([]))
+    api.meuPerfil().then(setPerfil).catch(() => {})
+  }, [])
+
+  const handleSair = async () => {
+    await api.logout()
+    auth.fullLogout()
+    navigate('/')
+  }
+
+  const lista = historico ?? mockHistory
+  const totalPages = Math.max(1, Math.ceil(lista.length / PAGE_SIZE))
+  const visibleHistory = lista.slice(histPage * PAGE_SIZE, (histPage + 1) * PAGE_SIZE)
 
   return (
     <div className="min-h-dvh bg-bg flex flex-col">
@@ -218,9 +300,21 @@ export default function Home() {
             <span className="text-white/30 text-xs font-body">Bem-vindo,</span>
             <span className="text-white text-xs font-body font-medium">{user}</span>
           </div>
-          <div className="w-8 h-8 rounded-full bg-pink flex items-center justify-center shadow-[0_0_12px_rgba(255,45,120,0.4)]">
+          <button
+            onClick={() => navigate('/perfil')}
+            title="Perfil"
+            className="w-8 h-8 rounded-full bg-pink flex items-center justify-center shadow-[0_0_12px_rgba(255,45,120,0.4)]
+                       hover:scale-105 transition-transform"
+          >
             <span className="font-display font-bold text-white text-xs">{initial}</span>
-          </div>
+          </button>
+          <button
+            onClick={handleSair}
+            className="font-body text-xs text-white/40 hover:text-white transition-colors"
+            title="Sair da conta"
+          >
+            Sair
+          </button>
         </div>
       </header>
 
@@ -354,7 +448,10 @@ export default function Home() {
           </div>
 
           {/* Perfil emocional do usuário */}
-          <PerfilEmocional onVerPainel={() => navigate('/dashboard')} />
+          <PerfilEmocional
+            onVerPainel={() => navigate('/dashboard')}
+            perfilReal={perfil}
+          />
         </div>
       </div>
     </div>

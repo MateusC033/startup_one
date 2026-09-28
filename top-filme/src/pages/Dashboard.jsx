@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api, auth } from '../utils/api'
 import {
-  kpis, estadoEmocional, destinoEmocional, companhia,
-  horariosPico, topFilmes, insight, insightSecundario,
-  heatmapEmoHora, demografia,
+  kpis as kpisMock, estadoEmocional as estadoMock, destinoEmocional as destinoMock,
+  companhia as companhiaMock, horariosPico as horariosMock, topFilmes as topMock,
+  insight, insightSecundario, heatmapEmoHora, demografia,
 } from '../data/dashboardData'
 
 /* ═══ Utilidades ═══════════════════════════════════════════════ */
@@ -350,19 +351,37 @@ function Demografia({ dados }) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const [empresa, setEmpresa] = useState(null)
+  const [dados, setDados] = useState(null)
 
   useEffect(() => {
-    const raw = sessionStorage.getItem('tf_empresa')
-    if (raw) {
-      try { setEmpresa(JSON.parse(raw)) } catch { setEmpresa(null) }
-    }
+    api.dashboard()
+      .then(d => {
+        setDados(d)
+        setEmpresa(d.empresa || null)
+      })
+      .catch(() => setDados(null))
   }, [])
 
-  const handleSair = () => {
-    sessionStorage.removeItem('tf_empresa')
+  const handleSair = async () => {
+    await api.empresaLogout()
+    auth.clearEmpresaToken()
+    auth.clearEmpresa()
     setEmpresa(null)
     navigate('/para-empresas')
   }
+
+  // Fallback para mocks se o backend não responder ou vier vazio.
+  const kpis        = dados?.kpis            ? {
+    totalAnalises: dados.kpis.total_analises,
+    usuariosUnicos: dados.kpis.usuarios_unicos,
+    tempoMedioSeg: kpisMock.tempoMedioSeg,
+    retorno7d: kpisMock.retorno7d,
+  } : kpisMock
+  const estadoEmocional  = (dados?.estado_emocional?.length ? dados.estado_emocional : estadoMock)
+  const destinoEmocional = (dados?.destino_emocional?.length ? dados.destino_emocional : destinoMock)
+  const companhia        = (dados?.companhia?.length ? dados.companhia : companhiaMock)
+  const horariosPico     = (dados?.horarios?.length === 24 ? dados.horarios : horariosMock)
+  const topFilmes        = (dados?.top_filmes?.length ? dados.top_filmes : topMock)
 
   return (
     <div className="min-h-dvh bg-[#F8F9FA] text-gray-900">
@@ -373,14 +392,16 @@ export default function Dashboard() {
           <div className="max-w-6xl mx-auto px-5 md:px-8 py-2.5 flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3 flex-wrap">
               <span className="inline-flex items-center gap-1.5 font-body text-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className={`w-1.5 h-1.5 rounded-full ${dados?.acesso_completo ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                 <span className="text-white/60">Conta empresa:</span>
                 <span className="font-semibold">{empresa.nome}</span>
               </span>
               <span className="hidden sm:inline text-white/20">·</span>
               <span className="inline-flex items-center gap-1.5 font-body text-xs">
                 <span className="text-white/60">Plano:</span>
-                <span className="font-semibold text-[#FF2D78]">{empresa.plano}</span>
+                <span className="font-semibold text-[#FF2D78]">
+                  {empresa.plano_ativo || empresa.plano || 'Sem assinatura ativa'}
+                </span>
               </span>
             </div>
             <button
@@ -457,12 +478,12 @@ export default function Dashboard() {
           <KPICard
             label="Sinais psicográficos"
             valor={kpis.totalAnalises.toLocaleString('pt-BR')}
-            sub="+ 214 vs. mês anterior"
+            sub={dados?.kpis?.analises_30d != null ? `${dados.kpis.analises_30d} nos últimos 30 dias` : 'coletados até hoje'}
           />
           <KPICard
             label="Perfis emocionais únicos"
             valor={kpis.usuariosUnicos.toLocaleString('pt-BR')}
-            sub="2,7 sinais por perfil"
+            sub={kpis.usuariosUnicos ? `${(kpis.totalAnalises / kpis.usuariosUnicos).toFixed(1)} sinais por perfil` : ''}
           />
           <KPICard
             label="Tempo médio de decisão"

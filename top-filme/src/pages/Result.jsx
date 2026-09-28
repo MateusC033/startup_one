@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getRecommendations } from '../utils/recommend'
+import { api, auth } from '../utils/api'
 
 /* ─── Poster com reset de erro ao trocar de filme ─────────────── */
 function Poster({ src, alt, className, style }) {
@@ -128,7 +129,24 @@ export default function Result() {
   useEffect(() => {
     const raw = sessionStorage.getItem('tf_answers')
     if (!raw) { navigate('/quiz'); return }
-    setFilms(getRecommendations(JSON.parse(raw)))
+    const answers = JSON.parse(raw)
+    const recs = getRecommendations(answers)
+    setFilms(recs)
+
+    // Persistir análise no backend (silencioso — se falhar, segue apenas com sessão)
+    if (auth.isLogged()) {
+      const respostas = {
+        q1: answers[0], q2: answers[1], q3: answers[2],
+        q4: answers[3], q5: answers[4],
+      }
+      const recomendacoes = recs.map(f => ({
+        id: f.id, titulo: f.titulo, poster: f.poster,
+      }))
+      const quick = sessionStorage.getItem('tf_quick_mood') || null
+      api.salvarAnalise(respostas, recomendacoes, quick)
+        .then(() => sessionStorage.removeItem('tf_quick_mood'))
+        .catch(() => {})
+    }
   }, [navigate])
 
   if (!films) return null
