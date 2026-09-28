@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   kpis, estadoEmocional, destinoEmocional, companhia,
@@ -349,15 +349,55 @@ function Demografia({ dados }) {
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const [empresa, setEmpresa] = useState(null)
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem('tf_empresa')
+    if (raw) {
+      try { setEmpresa(JSON.parse(raw)) } catch { setEmpresa(null) }
+    }
+  }, [])
+
+  const handleSair = () => {
+    sessionStorage.removeItem('tf_empresa')
+    setEmpresa(null)
+    navigate('/para-empresas')
+  }
 
   return (
     <div className="min-h-dvh bg-[#F8F9FA] text-gray-900">
+
+      {/* Barra empresa (só se logada) */}
+      {empresa && (
+        <div className="bg-gray-900 text-white">
+          <div className="max-w-6xl mx-auto px-5 md:px-8 py-2.5 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 font-body text-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="text-white/60">Conta empresa:</span>
+                <span className="font-semibold">{empresa.nome}</span>
+              </span>
+              <span className="hidden sm:inline text-white/20">·</span>
+              <span className="inline-flex items-center gap-1.5 font-body text-xs">
+                <span className="text-white/60">Plano:</span>
+                <span className="font-semibold text-[#FF2D78]">{empresa.plano}</span>
+              </span>
+            </div>
+            <button
+              onClick={handleSair}
+              className="font-body text-xs text-white/60 hover:text-white transition-colors"
+            >
+              Sair da conta empresa →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <header className="border-b border-gray-200 bg-[#FFFFFF]">
         <div className="max-w-6xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/para-empresas')}
             className="flex items-center gap-2 group"
           >
             <span className="text-[#FF2D78] font-display font-bold text-xl">✦</span>
@@ -369,10 +409,21 @@ export default function Dashboard() {
             </span>
           </button>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-body text-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Prévia B2B
-            </span>
+            {!empresa && (
+              <>
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-body text-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Modo demonstração
+                </span>
+                <button
+                  onClick={() => navigate('/empresas/login')}
+                  className="hidden sm:inline-block font-body text-xs text-gray-600 hover:text-gray-900
+                             border border-gray-200 rounded-full px-3 py-1.5 hover:border-gray-300 transition-all"
+                >
+                  Entrar como empresa
+                </button>
+              </>
+            )}
             <button
               onClick={() => navigate('/home')}
               className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors"

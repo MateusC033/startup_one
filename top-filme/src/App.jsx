@@ -5,6 +5,9 @@ import Home from './pages/Home'
 import Quiz from './pages/Quiz'
 import Result from './pages/Result'
 import Dashboard from './pages/Dashboard'
+import ParaEmpresas from './pages/ParaEmpresas'
+import Planos from './pages/Planos'
+import EmpresaLogin from './pages/EmpresaLogin'
 
 export default function App() {
   return (
@@ -16,6 +19,9 @@ export default function App() {
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/result" element={<Result />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/para-empresas" element={<ParaEmpresas />} />
+        <Route path="/planos" element={<Planos />} />
+        <Route path="/empresas/login" element={<EmpresaLogin />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

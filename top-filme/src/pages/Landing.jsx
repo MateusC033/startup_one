@@ -69,12 +69,12 @@ export default function Landing() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/para-empresas')}
             className="hidden sm:inline-block font-body text-white/40 text-xs hover:text-white/80 transition-colors
                        border border-border rounded-full px-3 py-1.5 hover:border-white/20 bg-bg/60 backdrop-blur-sm"
-            title="Painel de Inteligência (B2B)"
+            title="Área de empresas — produtoras, agências e streaming"
           >
-            Para produtoras
+            Para empresas
           </button>
           <button
             onClick={() => navigate('/auth')}
