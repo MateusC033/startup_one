@@ -212,7 +212,8 @@ def dashboard_dados(request):
         if r.get("q1"): counter_q1[r["q1"]] += 1
         if r.get("q2"): counter_q2[r["q2"]] += 1
         if r.get("q4"): counter_q4[r["q4"]] += 1
-        horas[a.criado_em.hour] += 1
+        # Converte para horário local (America/Sao_Paulo) antes de contar
+        horas[timezone.localtime(a.criado_em).hour] += 1
 
     def pct(counter, keys, labels):
         soma = sum(counter[k] for k in keys) or 1

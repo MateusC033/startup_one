@@ -1,14 +1,18 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../utils/api'
 
 /* ═══ Componentes ═════════════════════════════════════════════════ */
 
 function Stat({ valor, label }) {
   return (
-    <div>
+    <div className="text-center">
       <p className="font-display font-bold text-gray-900 text-3xl md:text-4xl leading-none tabular-nums">
         {valor}
       </p>
-      <p className="font-body text-xs text-gray-500 mt-2 leading-tight">{label}</p>
+      <p className="font-body text-xs text-gray-500 mt-2 leading-tight max-w-[180px] mx-auto">
+        {label}
+      </p>
     </div>
   )
 }
@@ -57,8 +61,24 @@ function Diferencial({ contra, favor }) {
 
 /* ═══ Página ═══════════════════════════════════════════════════════ */
 
+function formatarPeriodo(dados) {
+  // Retorna string tipo "3 meses · abr–set 2026"
+  if (!dados) return 'Desde 18 jun 2026'
+  return 'Base de teste · 18 jun – hoje'
+}
+
 export default function ParaEmpresas() {
   const navigate = useNavigate()
+  const [stats, setStats] = useState(null)
+
+  useEffect(() => {
+    api.dashboard().then(setStats).catch(() => {})
+  }, [])
+
+  const total       = stats?.kpis?.total_analises ?? 86
+  const usuarios    = stats?.kpis?.usuarios_unicos ?? 15
+  const media       = usuarios > 0 ? (total / usuarios).toFixed(1) : '—'
+  const analises30d = stats?.kpis?.analises_30d ?? 37
 
   return (
     <div className="min-h-dvh bg-[#F8F9FA] text-gray-900">
@@ -78,27 +98,29 @@ export default function ParaEmpresas() {
               Empresas
             </span>
           </button>
-          <div className="flex items-center gap-2 md:gap-3">
+          <nav className="flex items-center gap-1">
             <button
               onClick={() => navigate('/planos')}
-              className="hidden sm:inline-block font-body text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="hidden sm:inline-block font-body text-sm text-gray-600 hover:text-gray-900
+                         px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
             >
               Planos
             </button>
             <button
               onClick={() => navigate('/empresas/login')}
-              className="font-body text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="font-body text-sm font-semibold text-gray-900
+                         px-4 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all"
             >
               Entrar
             </button>
             <button
               onClick={() => navigate('/')}
-              className="hidden md:inline-block font-body text-xs text-gray-500 hover:text-gray-900
-                         border border-gray-200 rounded-full px-3 py-1.5 hover:border-gray-300 transition-all"
+              className="hidden md:inline-block font-body text-xs text-gray-400 hover:text-gray-700
+                         ml-2 pl-3 border-l border-gray-200 transition-colors"
             >
-              App do usuário →
+              App do usuário ↗
             </button>
-          </div>
+          </nav>
         </div>
       </header>
 
@@ -125,37 +147,39 @@ export default function ParaEmpresas() {
               className="font-body text-sm font-semibold rounded-xl px-8 py-3.5
                          bg-[#FF2D78] text-white hover:bg-[#E5236A] transition-all"
             >
-              Ver planos
+              Ver planos e preços
             </button>
-            <button
-              onClick={() => navigate('/dashboard')}
+            <a
+              href="mailto:vendas@topfilme.com.br?subject=Diagn%C3%B3stico%20B2B"
               className="font-body text-sm font-semibold rounded-xl px-6 py-3.5
                          border border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-900 transition-all"
             >
-              Ver o painel ao vivo →
-            </button>
+              Falar com vendas
+            </a>
           </div>
         </section>
 
-        {/* Números — prova quantitativa */}
+        {/* Números — prova quantitativa da base atual */}
         <section className="border-y border-gray-200 bg-[#FFFFFF]">
           <div className="max-w-5xl mx-auto px-5 md:px-8 py-10 md:py-12">
+            <div className="flex items-baseline justify-between mb-6 flex-wrap gap-2">
+              <p className="font-body text-xs uppercase tracking-widest text-gray-500">
+                Base de teste atual
+              </p>
+              <span className="font-body text-xs text-gray-400">
+                {formatarPeriodo(stats)}
+              </span>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
-              <Stat valor="847" label="sinais psicográficos capturados nos últimos 30 dias" />
-              <Stat valor="312" label="perfis emocionais únicos ativos" />
-              <Stat valor="3,1×" label="a demanda por 'sentir algo' vs. comédia às 21h" />
-              <Stat valor="47%" label="do consumo emocional noturno vem do cluster 25–34" />
+              <Stat valor={total} label="sinais psicográficos coletados" />
+              <Stat valor={usuarios} label="perfis emocionais únicos" />
+              <Stat valor={media} label="sinais em média por perfil" />
+              <Stat valor={analises30d} label="coletas nos últimos 30 dias" />
             </div>
-            <div className="mt-8 text-center">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="font-body text-xs text-gray-500 hover:text-[#FF2D78] transition-colors
-                           inline-flex items-center gap-1.5"
-              >
-                Explorar o painel completo
-                <span>→</span>
-              </button>
-            </div>
+            <p className="font-body text-xs text-gray-500 text-center mt-8 max-w-2xl mx-auto leading-relaxed">
+              Amostra pequena, deliberada — coleta com amigos e colegas para calibrar
+              o instrumento antes de escalar. O que importa aqui é o método, não o volume.
+            </p>
           </div>
         </section>
 
@@ -259,7 +283,7 @@ export default function ParaEmpresas() {
               Pronto para ver o<br className="hidden sm:block" /> que os catálogos <span className="text-[#FF2D78]">não veem</span>?
             </h2>
             <p className="font-body text-gray-600 text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-8">
-              Comece pelo painel de demonstração ou fale com o time de vendas para
+              Conheça os planos disponíveis ou fale com o time de vendas para
               um diagnóstico do seu contexto.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
@@ -294,13 +318,13 @@ export default function ParaEmpresas() {
                  className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">
                 vendas@topfilme.com.br
               </a>
-              <button onClick={() => navigate('/dashboard')}
-                      className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">
-                Painel
-              </button>
               <button onClick={() => navigate('/planos')}
                       className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">
                 Planos
+              </button>
+              <button onClick={() => navigate('/empresas/login')}
+                      className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">
+                Entrar
               </button>
               <button onClick={() => navigate('/')}
                       className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">

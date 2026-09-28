@@ -18,7 +18,8 @@ const PLANOS = [
       'Recomendações acionáveis por produto',
       'Entrega em 5 dias úteis',
     ],
-    ctaLabel: 'Solicitar relatório',
+    ctaLabel: 'Falar com vendas',
+    assunto: 'Relat%C3%B3rio%20Psicogr%C3%A1fico',
     destaque: false,
   },
   {
@@ -36,7 +37,8 @@ const PLANOS = [
       'Exportação em CSV e API de leitura',
       'Suporte prioritário e onboarding',
     ],
-    ctaLabel: 'Assinar painel',
+    ctaLabel: 'Falar com vendas',
+    assunto: 'Painel%20de%20Intelig%C3%AAncia',
     destaque: true,
     tag: 'Mais escolhido',
   },
@@ -55,14 +57,15 @@ const PLANOS = [
       'Relatório executivo + apresentação',
       'Entrega em 3 a 4 semanas',
     ],
-    ctaLabel: 'Solicitar teste',
+    ctaLabel: 'Falar com vendas',
+    assunto: 'Teste%20de%20Hip%C3%B3tese',
     destaque: false,
   },
 ]
 
 /* ═══ Componentes ═════════════════════════════════════════════════ */
 
-function CardPlano({ plano, onContratar }) {
+function CardPlano({ plano }) {
   const destaque = plano.destaque
 
   return (
@@ -113,16 +116,19 @@ function CardPlano({ plano, onContratar }) {
       </ul>
 
       {/* CTA */}
-      <button
-        onClick={() => onContratar(plano)}
-        className={`w-full font-body text-sm font-semibold rounded-xl py-3 transition-all
+      <a
+        href={`mailto:vendas@topfilme.com.br?subject=${plano.assunto}`}
+        className={`w-full font-body text-sm font-semibold rounded-xl py-3 transition-all text-center
           ${destaque
             ? 'bg-[#FF2D78] text-white hover:bg-[#E5236A]'
             : 'bg-gray-900 text-white hover:bg-gray-800'
           }`}
       >
         {plano.ctaLabel}
-      </button>
+      </a>
+      <p className="font-body text-[11px] text-gray-400 text-center mt-2">
+        Contratação via time comercial · sem checkout online
+      </p>
     </div>
   )
 }
@@ -131,11 +137,6 @@ function CardPlano({ plano, onContratar }) {
 
 export default function Planos() {
   const navigate = useNavigate()
-
-  const handleContratar = () => {
-    // Simulação: leva ao login empresa
-    navigate('/empresas/login')
-  }
 
   return (
     <div className="min-h-dvh bg-[#F8F9FA] text-gray-900">
@@ -155,21 +156,29 @@ export default function Planos() {
               Empresas
             </span>
           </button>
-          <div className="flex items-center gap-3">
+          <nav className="flex items-center gap-1">
+            <button
+              onClick={() => navigate('/para-empresas')}
+              className="hidden sm:inline-block font-body text-sm text-gray-600 hover:text-gray-900
+                         px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
+            >
+              Início
+            </button>
             <button
               onClick={() => navigate('/empresas/login')}
-              className="font-body text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="font-body text-sm font-semibold text-gray-900
+                         px-4 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all"
             >
               Entrar
             </button>
             <button
               onClick={() => navigate('/')}
-              className="hidden sm:inline-block font-body text-xs text-gray-500 hover:text-gray-900
-                         border border-gray-200 rounded-full px-3 py-1.5 hover:border-gray-300 transition-all"
+              className="hidden md:inline-block font-body text-xs text-gray-400 hover:text-gray-700
+                         ml-2 pl-3 border-l border-gray-200 transition-colors"
             >
-              App do usuário →
+              App do usuário ↗
             </button>
-          </div>
+          </nav>
         </div>
       </header>
 
@@ -192,7 +201,7 @@ export default function Planos() {
         {/* Grid de planos */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {PLANOS.map(plano => (
-            <CardPlano key={plano.id} plano={plano} onContratar={handleContratar} />
+            <CardPlano key={plano.id} plano={plano} />
           ))}
         </section>
 

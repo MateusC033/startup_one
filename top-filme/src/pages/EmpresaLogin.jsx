@@ -59,6 +59,24 @@ export default function EmpresaLogin() {
   const empresaInferida = inferirEmpresa(form.email)
   const isCadastro = modo === 'cadastro'
 
+  // Ao mudar o email, auto-preenche o nome da empresa (se reconhecido e campo ainda vazio)
+  const handleEmailChange = (novoEmail) => {
+    setForm(f => {
+      const nomeAtual = f.empresa
+      const dominioAntigo = f.email?.split('@')[1]?.toLowerCase()
+      const dominioNovo = novoEmail?.split('@')[1]?.toLowerCase()
+      const nomeInferidoAntigo = DOMINIOS_CONHECIDOS[dominioAntigo]
+      const nomeInferidoNovo = DOMINIOS_CONHECIDOS[dominioNovo]
+      // Só sobrescreve se o usuário não digitou algo diferente do inferido anterior
+      const podeAtualizar = !nomeAtual || nomeAtual === nomeInferidoAntigo
+      return {
+        ...f,
+        email: novoEmail,
+        empresa: podeAtualizar && nomeInferidoNovo ? nomeInferidoNovo : nomeAtual,
+      }
+    })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setErro('')
@@ -112,12 +130,22 @@ export default function EmpresaLogin() {
               Empresas
             </span>
           </button>
-          <button
-            onClick={() => navigate('/para-empresas')}
-            className="font-body text-sm text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1.5"
-          >
-            <span>←</span> Voltar
-          </button>
+          <nav className="flex items-center gap-1">
+            <button
+              onClick={() => navigate('/planos')}
+              className="hidden sm:inline-block font-body text-sm text-gray-600 hover:text-gray-900
+                         px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
+            >
+              Planos
+            </button>
+            <button
+              onClick={() => navigate('/para-empresas')}
+              className="font-body text-sm text-gray-600 hover:text-gray-900
+                         px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all flex items-center gap-1.5"
+            >
+              <span>←</span> Voltar
+            </button>
+          </nav>
         </div>
       </header>
 
@@ -143,7 +171,7 @@ export default function EmpresaLogin() {
                 type="email"
                 placeholder="nome@empresa.com.br"
                 value={form.email}
-                onChange={v => setForm(f => ({ ...f, email: v }))}
+                onChange={handleEmailChange}
                 required
                 hint={empresaInferida ? `Reconhecemos ${empresaInferida}` : undefined}
                 hintColor={empresaInferida ? 'text-[#FF2D78] font-semibold' : undefined}

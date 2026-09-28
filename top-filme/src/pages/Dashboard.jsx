@@ -348,10 +348,128 @@ function Demografia({ dados }) {
 
 /* ═══ Página ═══════════════════════════════════════════════════ */
 
+/* ─── Tela de bloqueio (sem login empresa) ─────────────────────── */
+
+function PainelBloqueado({ status, empresa, onSair }) {
+  const navigate = useNavigate()
+  const isSemLogin = status === 'sem-login'
+
+  return (
+    <div className="min-h-dvh bg-[#F8F9FA] text-gray-900 flex flex-col">
+      {/* Header */}
+      <header className="border-b border-gray-200 bg-[#FFFFFF]">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/para-empresas')}
+            className="flex items-center gap-2 group"
+          >
+            <span className="text-[#FF2D78] font-display font-bold text-xl">✦</span>
+            <span className="font-display font-bold text-gray-900 text-base tracking-tight">Top Filme</span>
+            <span className="font-body text-xs text-gray-400 border-l border-gray-200 pl-2 ml-1">
+              Painel de Inteligência
+            </span>
+          </button>
+          {empresa
+            ? (
+              <button onClick={onSair} className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">
+                Sair da conta empresa →
+              </button>
+            )
+            : (
+              <button onClick={() => navigate('/para-empresas')} className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors">
+                ← Voltar para empresas
+              </button>
+            )
+          }
+        </div>
+      </header>
+
+      {/* Conteúdo bloqueado */}
+      <main className="flex-1 flex items-center justify-center px-5 md:px-8 py-16">
+        <div className="w-full max-w-md">
+          <div className="rounded-2xl border border-gray-200 bg-[#FFFFFF] p-8 text-center">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#FF2D78]/10 mb-5">
+              <svg className="w-6 h-6 text-[#FF2D78]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </div>
+
+            <p className="font-body text-xs uppercase tracking-widest text-gray-500 mb-3">
+              {isSemLogin ? 'Acesso restrito' : 'Assinatura pendente'}
+            </p>
+            <h1 className="font-display font-bold text-gray-900 text-2xl mb-3 leading-tight">
+              {isSemLogin
+                ? 'Painel exclusivo para contas empresa.'
+                : `Olá, ${empresa?.nome || 'empresa'}.`}
+            </h1>
+            <p className="font-body text-gray-600 text-sm leading-relaxed mb-8">
+              {isSemLogin
+                ? 'Para acessar o painel de inteligência psicográfica é preciso estar autenticado como empresa parceira, com assinatura ativa.'
+                : 'Sua conta está em análise pelo nosso time comercial. Assim que a assinatura for ativada, o painel liberará automaticamente.'}
+            </p>
+
+            <div className="flex flex-col gap-2.5">
+              {isSemLogin ? (
+                <>
+                  <button
+                    onClick={() => navigate('/empresas/login')}
+                    className="w-full font-body text-sm font-semibold rounded-xl py-3
+                               bg-[#FF2D78] text-white hover:bg-[#E5236A] transition-all"
+                  >
+                    Entrar como empresa
+                  </button>
+                  <button
+                    onClick={() => navigate('/planos')}
+                    className="w-full font-body text-sm rounded-xl py-3 border border-gray-300
+                               text-gray-700 hover:border-gray-400 hover:text-gray-900 transition-all"
+                  >
+                    Conhecer os planos
+                  </button>
+                </>
+              ) : (
+                <>
+                  <a
+                    href="mailto:vendas@topfilme.com.br?subject=Ativa%C3%A7%C3%A3o%20de%20assinatura"
+                    className="w-full font-body text-sm font-semibold rounded-xl py-3
+                               bg-[#FF2D78] text-white hover:bg-[#E5236A] transition-all text-center"
+                  >
+                    Falar com vendas
+                  </a>
+                  <button
+                    onClick={onSair}
+                    className="w-full font-body text-sm rounded-xl py-3 border border-gray-300
+                               text-gray-700 hover:border-gray-400 hover:text-gray-900 transition-all"
+                  >
+                    Sair da conta
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <p className="text-center font-body text-xs text-gray-400 mt-5">
+            É pessoa física?{' '}
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-600 hover:text-gray-900 underline underline-offset-2 transition-colors"
+            >
+              Ir para o app
+            </button>
+          </p>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+/* ─── Dashboard ────────────────────────────────────────────────── */
+
 export default function Dashboard() {
   const navigate = useNavigate()
   const [empresa, setEmpresa] = useState(null)
   const [dados, setDados] = useState(null)
+  const [carregando, setCarregando] = useState(true)
 
   useEffect(() => {
     api.dashboard()
@@ -360,6 +478,7 @@ export default function Dashboard() {
         setEmpresa(d.empresa || null)
       })
       .catch(() => setDados(null))
+      .finally(() => setCarregando(false))
   }, [])
 
   const handleSair = async () => {
@@ -369,6 +488,13 @@ export default function Dashboard() {
     setEmpresa(null)
     navigate('/para-empresas')
   }
+
+  if (carregando) return <div className="min-h-dvh bg-[#F8F9FA]" />
+
+  // Gate: sem login ou sem assinatura ativa → tela bloqueada
+  if (!empresa) return <PainelBloqueado status="sem-login" empresa={null} onSair={handleSair} />
+  if (!dados?.acesso_completo) return <PainelBloqueado status="pendente" empresa={empresa} onSair={handleSair} />
+
 
   // Fallback para mocks se o backend não responder ou vier vazio.
   const kpis        = dados?.kpis            ? {
@@ -430,26 +556,11 @@ export default function Dashboard() {
             </span>
           </button>
           <div className="flex items-center gap-3">
-            {!empresa && (
-              <>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-body text-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Modo demonstração
-                </span>
-                <button
-                  onClick={() => navigate('/empresas/login')}
-                  className="hidden sm:inline-block font-body text-xs text-gray-600 hover:text-gray-900
-                             border border-gray-200 rounded-full px-3 py-1.5 hover:border-gray-300 transition-all"
-                >
-                  Entrar como empresa
-                </button>
-              </>
-            )}
             <button
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/para-empresas')}
               className="font-body text-xs text-gray-500 hover:text-gray-900 transition-colors"
             >
-              Voltar ao app →
+              ← Página de empresas
             </button>
           </div>
         </div>
