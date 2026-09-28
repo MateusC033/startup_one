@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import ParaEmpresas from './pages/ParaEmpresas'
 import Planos from './pages/Planos'
 import EmpresaLogin from './pages/EmpresaLogin'
+import Perfil from './pages/Perfil'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/para-empresas" element={<ParaEmpresas />} />
         <Route path="/planos" element={<Planos />} />
         <Route path="/empresas/login" element={<EmpresaLogin />} />
+        <Route path="/perfil" element={<Perfil />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
