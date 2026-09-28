@@ -764,10 +764,10 @@ export default function Dashboard() {
         {/* Rodapé */}
         <footer className="pt-4 pb-2 border-t border-gray-200 flex items-center justify-between flex-wrap gap-2">
           <p className="font-body text-xs text-gray-400">
-            Dados agregados e anonimizados. Amostra ilustrativa para pitch.
+            Dados agregados e anonimizados.
           </p>
-          <p className="font-body text-xs text-gray-400 tabular-nums">
-            Atualizado em 27 set 2026 · 18h
+          <p className="font-body text-xs text-gray-400">
+            Sistema com finalidade acadêmica · disciplina Startup One · FIAP
           </p>
         </footer>
 
