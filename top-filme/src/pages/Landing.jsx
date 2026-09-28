@@ -67,23 +67,13 @@ export default function Landing() {
           <span className="text-pink font-display font-bold text-2xl">✦</span>
           <span className="font-display font-bold text-white text-lg tracking-tight">Top Filme</span>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate('/para-empresas')}
-            className="hidden sm:inline-block font-body text-white/40 text-xs hover:text-white/80 transition-colors
-                       border border-border rounded-full px-3 py-1.5 hover:border-white/20 bg-bg/60 backdrop-blur-sm"
-            title="Área de empresas — produtoras, agências e streaming"
-          >
-            Para empresas
-          </button>
-          <button
-            onClick={() => navigate('/auth')}
-            className="font-body text-white/50 text-sm hover:text-white transition-colors
-                       border border-border rounded-full px-4 py-1.5 hover:border-white/20 bg-bg/60 backdrop-blur-sm"
-          >
-            Entrar
-          </button>
-        </div>
+        <button
+          onClick={() => navigate('/auth')}
+          className="font-body text-white/50 text-sm hover:text-white transition-colors
+                     border border-border rounded-full px-4 py-1.5 hover:border-white/20 bg-bg/60 backdrop-blur-sm"
+        >
+          Entrar
+        </button>
       </header>
 
       {/* ── Hero ──────────────────────────────────────────────── */}
@@ -156,6 +146,22 @@ export default function Landing() {
             <span className="font-body text-white/30 text-xs uppercase tracking-wider">{s.label}</span>
           </div>
         ))}
+      </div>
+
+      {/* ── Nota B2B — trilha discreta para empresas ─────────────── */}
+      <div className="relative z-10 border-t border-border bg-bg/80 backdrop-blur-sm px-6 py-2.5 md:px-12">
+        <button
+          onClick={() => navigate('/para-empresas')}
+          className="w-full flex items-center justify-center gap-2 font-body text-xs text-white/40
+                     hover:text-white/80 transition-colors group"
+        >
+          <span className="text-lavender/60 group-hover:text-lavender transition-colors">✦</span>
+          <span>
+            Trabalha com pesquisa de mercado audiovisual?
+            <span className="text-white/70 group-hover:text-white ml-1.5">Conheça o painel para empresas</span>
+          </span>
+          <span className="text-white/30 group-hover:translate-x-0.5 transition-transform">→</span>
+        </button>
       </div>
 
       {/* Bottom bar */}

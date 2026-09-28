@@ -115,12 +115,7 @@ export default function Perfil() {
              style={{ animationDelay: '0.15s', opacity: 0, animationFillMode: 'forwards' }}>
           <div className="flex items-center justify-between">
             <h2 className="font-display font-semibold text-white text-base">Seu perfil emocional</h2>
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="font-body text-xs text-lavender hover:text-white transition-colors"
-            >
-              Ver painel geral →
-            </button>
+            <span className="font-body text-xs text-white/30">com base nas suas análises</span>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

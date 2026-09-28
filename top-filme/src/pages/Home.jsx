@@ -224,14 +224,14 @@ function PerfilEmocional({ onVerPainel, perfilReal }) {
           </div>
         </div>
 
-        {/* CTA para dashboard */}
+        {/* CTA para perfil do usuário */}
         <button
           onClick={onVerPainel}
           className="w-full font-body text-xs text-white/70 bg-surface2 border border-border
                      rounded-xl px-4 py-2.5 hover:border-lavender/40 hover:text-white
                      transition-all flex items-center justify-center gap-2 group"
         >
-          <span>Ver painel completo</span>
+          <span>Ver meu perfil</span>
           <span className="text-lavender group-hover:translate-x-0.5 transition-transform">→</span>
         </button>
       </div>
@@ -287,26 +287,15 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate('/dashboard')}
-            className="hidden sm:inline-flex items-center gap-1.5 bg-surface border border-border
-                       rounded-full px-3 py-1.5 font-body text-xs text-white/60
-                       hover:border-lavender/40 hover:text-white transition-colors"
-            title="Painel B2B — visão do assinante"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-lavender" />
-            Painel
-          </button>
-          <div className="hidden md:flex items-center gap-2 bg-surface border border-border rounded-full px-3 py-1.5">
-            <span className="text-white/30 text-xs font-body">Bem-vindo,</span>
-            <span className="text-white text-xs font-body font-medium">{user}</span>
-          </div>
-          <button
             onClick={() => navigate('/perfil')}
-            title="Perfil"
-            className="w-8 h-8 rounded-full bg-pink flex items-center justify-center shadow-[0_0_12px_rgba(255,45,120,0.4)]
-                       hover:scale-105 transition-transform"
+            className="flex items-center gap-2 bg-surface border border-border rounded-full px-3 py-1.5
+                       hover:border-lavender/40 transition-colors group"
+            title="Ver meu perfil"
           >
-            <span className="font-display font-bold text-white text-xs">{initial}</span>
+            <span className="text-white/30 text-xs font-body hidden sm:inline">Olá,</span>
+            <span className="text-white text-xs font-body font-medium group-hover:text-lavender transition-colors">
+              {user}
+            </span>
           </button>
           <button
             onClick={handleSair}
@@ -449,7 +438,7 @@ export default function Home() {
 
           {/* Perfil emocional do usuário */}
           <PerfilEmocional
-            onVerPainel={() => navigate('/dashboard')}
+            onVerPainel={() => navigate('/perfil')}
             perfilReal={perfil}
           />
         </div>

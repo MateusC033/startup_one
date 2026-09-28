@@ -147,6 +147,7 @@ export default function Result() {
   const [centerIdx, setCenterIdx] = useState(0)
   const [acoes, setAcoes] = useState({ salvou: false, jaVi: false, naoGostou: false })
   const locked = useRef(false)
+  const analiseEnviada = useRef(false)  // guard contra StrictMode em dev
 
   useEffect(() => {
     const raw = sessionStorage.getItem('tf_answers')
@@ -156,7 +157,8 @@ export default function Result() {
     setRespostas(answers)
     setFilms(recs)
 
-    if (auth.isLogged()) {
+    if (auth.isLogged() && !analiseEnviada.current) {
+      analiseEnviada.current = true
       const respostasObj = {
         q1: answers[0], q2: answers[1], q3: answers[2],
         q4: answers[3], q5: answers[4],
@@ -164,8 +166,11 @@ export default function Result() {
       const recomendacoes = recs.map(f => ({ id: f.id, titulo: f.titulo, poster: f.poster }))
       const quick = sessionStorage.getItem('tf_quick_mood') || null
       api.salvarAnalise(respostasObj, recomendacoes, quick)
-        .then(() => sessionStorage.removeItem('tf_quick_mood'))
-        .catch(() => {})
+        .then(() => {
+          sessionStorage.removeItem('tf_quick_mood')
+          sessionStorage.removeItem('tf_answers')  // evita reenvio se recarregar a página
+        })
+        .catch(() => { analiseEnviada.current = false })  // permite retry se falhou
     }
   }, [navigate])
 
