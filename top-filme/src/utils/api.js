@@ -1,5 +1,5 @@
-// Cliente da API do backend Django local.
-// Base URL: http://localhost:8000/api. Se precisar mudar, defina VITE_API_URL.
+// Cliente da API do backend Django.
+// Em dev usa localhost:8000. Em prod use VITE_API_URL (ver top-filme/.env.example).
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 

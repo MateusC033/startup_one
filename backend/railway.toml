@@ -1,0 +1,16 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+# Comando de release roda ANTES do start — migrations + collectstatic
+releaseCommand = "python manage.py migrate --no-input && python manage.py collectstatic --no-input"
+
+# Comando de start do web server (produção com gunicorn)
+startCommand = "gunicorn topfilme.wsgi:application --log-file - --bind 0.0.0.0:$PORT"
+
+# Health check — Django responde em / se ALLOWED_HOSTS liberar; usamos /admin/login/
+healthcheckPath = "/admin/login/"
+healthcheckTimeout = 60
+
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
