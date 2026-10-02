@@ -168,17 +168,25 @@ function HistoryCard({ item }) {
 
 function PerfilEmocional({ onVerPainel, perfilReal }) {
   const cores = { sentir: 'bg-lavender', rir: 'bg-yellow', pensar: 'bg-mint', acao: 'bg-orange' }
-  const totalReal = perfilReal?.total ?? 0
+
+  // perfilReal === null → ainda carregando do backend
+  // perfilReal.total === 0 → conta sem análises; mostra estado vazio real
+  const carregando = perfilReal === null
+  const total = perfilReal?.total ?? 0
+  const vazio = !carregando && total === 0
+
+  const humoresPadrao = [
+    { key: 'sentir', label: 'Sentir algo', valor: 0, cor: 'bg-lavender' },
+    { key: 'rir',    label: 'Levinho',     valor: 0, cor: 'bg-yellow'   },
+    { key: 'pensar', label: 'Curioso',     valor: 0, cor: 'bg-mint'     },
+    { key: 'acao',   label: 'Ação',        valor: 0, cor: 'bg-orange'   },
+  ]
   const humores = perfilReal?.distribuicao?.length
     ? perfilReal.distribuicao.map(d => ({ ...d, cor: cores[d.key] }))
-    : [
-        { key: 'sentir', label: 'Sentir algo', valor: 42, cor: 'bg-lavender' },
-        { key: 'rir',    label: 'Levinho',     valor: 25, cor: 'bg-yellow'   },
-        { key: 'pensar', label: 'Curioso',     valor: 21, cor: 'bg-mint'     },
-        { key: 'acao',   label: 'Ação',        valor: 12, cor: 'bg-orange'   },
-      ]
-  const dominante = perfilReal?.humor_dominante || humores[0]
-  const total = totalReal || 12
+    : humoresPadrao
+  const dominante = perfilReal?.humor_dominante && perfilReal.humor_dominante.valor > 0
+    ? perfilReal.humor_dominante
+    : null
 
   return (
     <div className="md:col-span-1">
@@ -197,10 +205,16 @@ function PerfilEmocional({ onVerPainel, perfilReal }) {
         {/* Humor dominante */}
         <div>
           <p className="font-body text-white/40 text-[10px] uppercase tracking-widest mb-2">Humor dominante</p>
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-lavender/15 border border-lavender/30">
-            <span className="text-lavender text-xs">✦</span>
-            <span className="font-display font-semibold text-lavender text-sm">{dominante.label}</span>
-          </span>
+          {dominante ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 bg-lavender/15 border border-lavender/30">
+              <span className="text-lavender text-xs">✦</span>
+              <span className="font-display font-semibold text-lavender text-sm">{dominante.label}</span>
+            </span>
+          ) : (
+            <span className="font-body text-white/30 text-sm italic">
+              {vazio ? 'Faça sua primeira análise' : '—'}
+            </span>
+          )}
         </div>
 
         {/* Distribuição em barras finas */}
