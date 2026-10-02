@@ -57,38 +57,64 @@ Railway Project "startup_one"
    - **Start Command:** deixar em branco (vai usar o `Procfile` / `railway.toml`)
 3. **NÃO fazer deploy ainda** — primeiro configurar env vars (Fase 2)
 
-### 1.3 Nome de domínio público
+### 1.3 Gerar domínio público do backend
 
 1. Na aba **Settings** → **Networking** → **Generate Domain**
-2. Anotar o domínio gerado — algo como `topfilme-api-production.up.railway.app`
-3. **Este domínio vai nas env vars** (próxima fase)
+2. Railway cria um domínio automático (algo como `backend-production-xxxx.up.railway.app`)
+3. **Não precisa anotar** — vamos referenciar via variável automática do Railway
+
+> **Importante:** o nome do serviço precisa ser exatamente **`backend`** (minúsculo).
+> Se Railway colocou outro nome (ex: `startup_one`), renomear em Settings → nome
+> do serviço. As referências entre serviços dependem desse nome bater.
 
 ---
 
-## Fase 2 — Variáveis de ambiente
+## Fase 2 — Variáveis de ambiente (via Railway Reference Variables)
 
-### 2.1 Backend — conectar ao Postgres
+Em vez de copiar/colar domínios literais (que podem mudar), usamos referências
+dinâmicas do Railway. Cada serviço expõe automaticamente variáveis como
+`RAILWAY_PUBLIC_DOMAIN`, e outros serviços podem referenciar via
+`${{servico.VARIAVEL}}`.
 
-1. Aba **Variables** do serviço backend
-2. Clicar em **"+ New Variable"** → **Add Reference**
-3. Selecionar o Postgres → variável `DATABASE_URL`
-4. Isso cria uma referência dinâmica (não precisa copiar URL)
+### 2.1 Backend — Variables
 
-### 2.2 Backend — demais variáveis
-
-Adicionar manualmente (**Variables** → **Raw Editor** permite colar tudo):
+Na aba **Variables** do serviço backend, usar o **Raw Editor** e colar:
 
 ```
 SECRET_KEY=<gerar nova — ver 2.3>
 DEBUG=False
-ALLOWED_HOSTS=topfilme-api-production.up.railway.app
-CORS_ALLOWED_ORIGINS=https://<DOMINIO_FRONTEND>
-CSRF_TRUSTED_ORIGINS=https://topfilme-api-production.up.railway.app
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+ALLOWED_HOSTS=${{RAILWAY_PUBLIC_DOMAIN}}
+CSRF_TRUSTED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}
+CORS_ALLOWED_ORIGINS=https://${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}
 ```
 
-Substituir:
-- `topfilme-api-production.up.railway.app` pelo domínio gerado em 1.3
-- `<DOMINIO_FRONTEND>` pelo domínio do serviço frontend (ver aba do frontend)
+**Como ler isso:**
+- `${{Postgres.DATABASE_URL}}` — pega a `DATABASE_URL` do serviço chamado `Postgres`
+  (nome padrão do serviço Postgres gerado em 1.1)
+- `${{RAILWAY_PUBLIC_DOMAIN}}` sem prefixo de serviço — referência ao próprio
+  serviço (equivalente a `${{backend.RAILWAY_PUBLIC_DOMAIN}}` quando configurado
+  dentro do serviço `backend`)
+- `${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}` — aspas porque o nome tem hífen; pega
+  o domínio público do serviço frontend
+
+**Vantagens:**
+- Se Railway regenerar o domínio (ou se recriarmos um serviço), as referências
+  continuam resolvendo corretamente — sem precisar editar nenhuma variável
+- Nenhum domínio hard-coded no doc, no código ou nas variáveis
+
+### 2.2 Confirmar nomes de serviço
+
+As referências acima assumem que os serviços se chamam exatamente:
+
+| Serviço  | Nome esperado |
+|---|---|
+| Backend  | `backend` |
+| Frontend | `top-filme` |
+| Postgres | `Postgres` |
+
+Se algum tiver outro nome no Railway, ajustar as referências ou renomear o
+serviço no painel (Settings → nome do serviço).
 
 ### 2.3 Gerar SECRET_KEY nova
 
@@ -133,30 +159,34 @@ Após deploy bem-sucedido:
 
 ### 3.2 Testar admin
 
-Abrir `https://topfilme-api-production.up.railway.app/admin/` → login →
-confirmar que o CSS carregou (whitenoise) e que dá para navegar.
+Abrir o domínio do backend (ver em **Settings → Networking** se precisar
+confirmar) + `/admin/` → login → confirmar que o CSS carregou (whitenoise)
+e que dá para navegar.
 
 ---
 
-## Fase 4 — Frontend aponta para o backend
+## Fase 4 — Frontend aponta para o backend (via variável)
 
 ### 4.1 Configurar VITE_API_URL
 
-1. Serviço **frontend** no Railway → aba **Variables**
-2. Adicionar:
+1. Serviço **top-filme** no Railway → aba **Variables**
+2. Adicionar (via Raw Editor ou "+ New Variable"):
    ```
-   VITE_API_URL=https://topfilme-api-production.up.railway.app/api
+   VITE_API_URL=https://${{backend.RAILWAY_PUBLIC_DOMAIN}}/api
    ```
-   (atenção: inclui `/api` no final, sem barra depois)
-3. Salvar — Railway rebuilda o frontend automaticamente
+3. Salvar — Railway rebuilda o frontend automaticamente, resolvendo a
+   referência no momento do build
+
+> Atenção: Vite injeta variáveis em **build time** (viram constantes
+> no bundle JS). Se o domínio do backend mudar depois, o frontend precisa
+> ser redeployado para re-resolver a referência.
 
 ### 4.2 Confirmar CORS
 
-No serviço **backend**, verificar que `CORS_ALLOWED_ORIGINS` inclui o domínio
-exato do frontend (com `https://`, sem barra no final).
-
-Se o domínio do frontend ainda não existia quando configuramos (Fase 2),
-adicionar agora e redeployar o backend.
+Como `CORS_ALLOWED_ORIGINS` do backend já usa
+`${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}` (Fase 2.1), a configuração é
+automática e não precisa de ajuste. Qualquer regeneração de domínio no
+frontend é propagada no próximo redeploy do backend.
 
 ---
 
@@ -251,12 +281,16 @@ redeployar — a Landing e páginas estáticas voltam a funcionar (sem backend).
 - [ ] `backend/.gitignore` ignorando `db.sqlite3`, `venv/`, `__pycache__/`,
       `staticfiles/`
 - [ ] `backend/topfilme/settings.py` lendo env vars com fallback dev
-- [ ] Postgres criado no Railway
-- [ ] Backend criado no Railway com Root Directory `backend`
-- [ ] `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`,
-      `CSRF_TRUSTED_ORIGINS` configuradas no backend
-- [ ] `DATABASE_URL` referenciando o Postgres
-- [ ] `VITE_API_URL` configurada no serviço frontend
+- [ ] Postgres criado no Railway (nome do serviço: `Postgres`)
+- [ ] Backend criado no Railway com Root Directory `backend` (nome do serviço: `backend`)
+- [ ] Serviço do frontend confirmado com nome `top-filme`
+- [ ] No backend: `SECRET_KEY` gerada e configurada
+- [ ] No backend: `DEBUG=False`
+- [ ] No backend: `DATABASE_URL=${{Postgres.DATABASE_URL}}`
+- [ ] No backend: `ALLOWED_HOSTS=${{RAILWAY_PUBLIC_DOMAIN}}`
+- [ ] No backend: `CSRF_TRUSTED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}`
+- [ ] No backend: `CORS_ALLOWED_ORIGINS=https://${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}`
+- [ ] No frontend: `VITE_API_URL=https://${{backend.RAILWAY_PUBLIC_DOMAIN}}/api`
 - [ ] Testou localmente que `python manage.py runserver` ainda funciona
       com SQLite (fallback do settings)
 
