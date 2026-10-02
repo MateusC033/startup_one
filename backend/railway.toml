@@ -4,9 +4,8 @@ builder = "nixpacks"
 [deploy]
 # Comando de release roda ANTES do start.
 # - migrate: aplica migrations (idempotente — pula se já aplicadas)
-# - collectstatic: coleta arquivos para o whitenoise servir
-# - ensure_superuser: cria admin a partir das env vars (idempotente — ver command)
-releaseCommand = "python manage.py migrate --no-input && python manage.py collectstatic --no-input && python manage.py ensure_superuser"
+# - collectstatic: coleta arquivos para o whitenoise servir admin
+releaseCommand = "python manage.py migrate --no-input && python manage.py collectstatic --no-input"
 
 # Comando de start do web server (produção com gunicorn)
 startCommand = "gunicorn topfilme.wsgi:application --log-file - --bind 0.0.0.0:$PORT"

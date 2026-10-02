@@ -148,36 +148,13 @@ Observar no Railway (aba **Deployments** do serviço backend):
 
 Se falhar, ver **View Logs** do deploy. Erros comuns no fim deste doc.
 
-### 3.1 Superuser criado automaticamente
+### 3.2 Verificar que a API está no ar
 
-O release command roda `python manage.py ensure_superuser`, que cria o
-superuser a partir de três env vars **se elas estiverem configuradas**:
+Abrir no browser:
+`https://<dominio-do-backend>/api/dashboard`
 
-```
-DJANGO_SUPERUSER_USERNAME=admin
-DJANGO_SUPERUSER_PASSWORD=<escolha uma senha forte>
-DJANGO_SUPERUSER_EMAIL=mateuscaldeira.py@gmail.com
-```
-
-Adicionar essas três variáveis no serviço **backend** → **Variables** antes
-do primeiro deploy. O `ensure_superuser` é idempotente:
-
-- Primeira vez: cria o superuser com as credenciais informadas
-- Deploys seguintes: detecta que já existe e faz no-op
-- Se as três vars não estiverem definidas: command apenas loga aviso e sai
-
-Sem shell, sem `railway run`, sem passo manual depois do deploy.
-
-> **Trocar senha depois:** se precisar mudar a senha do admin, acessar
-> `/admin/` com a atual, menu do usuário → "Change password". Ou deletar
-> o usuário e redeployar com nova `DJANGO_SUPERUSER_PASSWORD` (o command
-> recria quando não encontra o username).
-
-### 3.2 Testar admin
-
-Abrir o domínio do backend (ver em **Settings → Networking** se precisar
-confirmar) + `/admin/` → login → confirmar que o CSS carregou (whitenoise)
-e que dá para navegar.
+Deve retornar JSON com `acesso_completo: false` e KPIs em zero (banco vazio).
+Se retornar isso, backend está funcionando.
 
 ---
 
@@ -212,51 +189,31 @@ Após o rebuild do frontend terminar:
 
 1. **Landing** carrega
 2. **Cadastro** (`/auth`) cria usuário real no Postgres de produção
-3. **Quiz** → **Result** persiste análise (verificável no admin)
+3. **Quiz** → **Result** persiste análise
 4. **Home** mostra o histórico recém-criado
-5. **Login empresa** com credencial de teste (ver abaixo) → **Dashboard**
-   carrega agregações do Postgres de produção
 
 ### 5.1 Dados em produção
 
-**Estado inicial:** banco vazio. Isso é deliberado — o avaliador que acessar o
-sistema vai fazer o próprio quiz e ver o dado dele aparecer.
+**Estado inicial: banco vazio.** O avaliador acessa o sistema, cria conta,
+responde o quiz, recebe recomendações. É o fluxo essencial — não precisa
+de dados pré-populados.
 
-**Caso queira popular com os dados demo** (15 usuários + 86 análises + 3 empresas),
-há duas formas:
+**Páginas B2B em produção com banco vazio:**
+- `/dashboard` sem login empresa → mostra tela de gating (correto)
+- `/dashboard` com login empresa (após cadastro) → dashboard aparece
+  mas com KPIs em zero (comportamento esperado)
+- `/servicos`, `/para-empresas` → funcionam normalmente (conteúdo estático)
 
-**Opção A — via Railway CLI (requer instalação local)**
+**Se quiser popular dados depois** (não é necessário para avaliação):
+há um management command `ensure_superuser` e um `seed` no projeto. Para
+rodar em produção use o Railway CLI local:
+
 ```bash
-# Uma vez: instalar e autenticar
 npm install -g @railway/cli
 railway login
-railway link                 # escolhe o projeto startup_one
-
-# Rodar o comando no serviço backend
+railway link
 railway run --service backend python manage.py seed
 ```
-
-**Opção B — via management command habilitado por env var temporária**
-Alternativa se não quiser mexer com CLI:
-
-1. No serviço backend → **Variables** → adicionar `RUN_SEED_ON_DEPLOY=1`
-2. Fazer um redeploy manual (botão **Deploy** na aba Deployments)
-3. **Imediatamente após o deploy terminar**, remover a variável
-   `RUN_SEED_ON_DEPLOY` para não repopular em deploys futuros
-
-(Essa opção B exige que o `seed` seja chamado condicionalmente no release
-command — ver `backend/Procfile`. Hoje não está habilitada; posso configurar
-se preferir.)
-
-### 5.2 Credencial de empresa de teste
-
-Se e quando o `seed` for executado, cria 3 empresas demo:
-
-- `demo@netflix.demo.topfilme.local` / `empresa1234` (assinatura 2º mês)
-- `demo@globo.demo.topfilme.local` / `empresa1234` (1º mês)
-- `demo@prime.demo.topfilme.local` / `empresa1234` (3º mês)
-
-Sem rodar `seed`, nenhuma empresa existe em produção.
 
 ---
 
@@ -323,9 +280,6 @@ redeployar — a Landing e páginas estáticas voltam a funcionar (sem backend).
 - [ ] No backend: `ALLOWED_HOSTS=${{RAILWAY_PUBLIC_DOMAIN}}`
 - [ ] No backend: `CSRF_TRUSTED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}`
 - [ ] No backend: `CORS_ALLOWED_ORIGINS=https://${{frontend.RAILWAY_PUBLIC_DOMAIN}}`
-- [ ] No backend: `DJANGO_SUPERUSER_USERNAME` definida
-- [ ] No backend: `DJANGO_SUPERUSER_PASSWORD` definida (senha forte)
-- [ ] No backend: `DJANGO_SUPERUSER_EMAIL` definida
 - [ ] No frontend: `VITE_API_URL=https://${{backend.RAILWAY_PUBLIC_DOMAIN}}/api`
 - [ ] Testou localmente que `python manage.py runserver` ainda funciona
       com SQLite (fallback do settings)
