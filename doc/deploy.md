@@ -148,13 +148,30 @@ Observar no Railway (aba **Deployments** do serviço backend):
 
 Se falhar, ver **View Logs** do deploy. Erros comuns no fim deste doc.
 
-### 3.1 Criar superuser em produção
+### 3.1 Superuser criado automaticamente
 
-Após deploy bem-sucedido:
+O release command roda `python manage.py ensure_superuser`, que cria o
+superuser a partir de três env vars **se elas estiverem configuradas**:
 
-1. Aba **Settings** → **Shell** (ou usar `railway shell` no CLI)
-2. Rodar: `python manage.py createsuperuser`
-3. Informar email, nickname e senha
+```
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_PASSWORD=<escolha uma senha forte>
+DJANGO_SUPERUSER_EMAIL=mateuscaldeira.py@gmail.com
+```
+
+Adicionar essas três variáveis no serviço **backend** → **Variables** antes
+do primeiro deploy. O `ensure_superuser` é idempotente:
+
+- Primeira vez: cria o superuser com as credenciais informadas
+- Deploys seguintes: detecta que já existe e faz no-op
+- Se as três vars não estiverem definidas: command apenas loga aviso e sai
+
+Sem shell, sem `railway run`, sem passo manual depois do deploy.
+
+> **Trocar senha depois:** se precisar mudar a senha do admin, acessar
+> `/admin/` com a atual, menu do usuário → "Change password". Ou deletar
+> o usuário e redeployar com nova `DJANGO_SUPERUSER_PASSWORD` (o command
+> recria quando não encontra o username).
 
 ### 3.2 Testar admin
 
@@ -205,19 +222,35 @@ Após o rebuild do frontend terminar:
 **Estado inicial:** banco vazio. Isso é deliberado — o avaliador que acessar o
 sistema vai fazer o próprio quiz e ver o dado dele aparecer.
 
-Para popular com dados de demonstração em algum momento:
+**Caso queira popular com os dados demo** (15 usuários + 86 análises + 3 empresas),
+há duas formas:
 
+**Opção A — via Railway CLI (requer instalação local)**
 ```bash
-# via shell do Railway:
-python manage.py seed
+# Uma vez: instalar e autenticar
+npm install -g @railway/cli
+railway login
+railway link                 # escolhe o projeto startup_one
+
+# Rodar o comando no serviço backend
+railway run --service backend python manage.py seed
 ```
 
-> Cuidado: `seed --limpar` apaga todos os usuários do seed. Em produção,
-> rodar apenas `seed` sem flag (vai só adicionar, não limpar).
+**Opção B — via management command habilitado por env var temporária**
+Alternativa se não quiser mexer com CLI:
+
+1. No serviço backend → **Variables** → adicionar `RUN_SEED_ON_DEPLOY=1`
+2. Fazer um redeploy manual (botão **Deploy** na aba Deployments)
+3. **Imediatamente após o deploy terminar**, remover a variável
+   `RUN_SEED_ON_DEPLOY` para não repopular em deploys futuros
+
+(Essa opção B exige que o `seed` seja chamado condicionalmente no release
+command — ver `backend/Procfile`. Hoje não está habilitada; posso configurar
+se preferir.)
 
 ### 5.2 Credencial de empresa de teste
 
-O comando `seed` cria 3 empresas demo:
+Se e quando o `seed` for executado, cria 3 empresas demo:
 
 - `demo@netflix.demo.topfilme.local` / `empresa1234` (assinatura 2º mês)
 - `demo@globo.demo.topfilme.local` / `empresa1234` (1º mês)
@@ -250,8 +283,9 @@ Whitenoise não configurado ou `collectstatic` não rodou. Confirmar no
 log do release command que `collectstatic` executou sem erro.
 
 ### Migrations não aplicaram
-O release command deve rodar `migrate --no-input`. Se não rodou, abrir
-shell e executar manualmente: `python manage.py migrate`.
+O release command deve rodar `migrate --no-input`. Se falhou, verificar o log
+do release no painel do Railway e corrigir o erro. Para forçar nova tentativa:
+botão **Redeploy** na aba Deployments.
 
 ### "psycopg2 not found"
 `requirements.txt` sem `psycopg2-binary` — verificar que o arquivo
@@ -289,6 +323,9 @@ redeployar — a Landing e páginas estáticas voltam a funcionar (sem backend).
 - [ ] No backend: `ALLOWED_HOSTS=${{RAILWAY_PUBLIC_DOMAIN}}`
 - [ ] No backend: `CSRF_TRUSTED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}`
 - [ ] No backend: `CORS_ALLOWED_ORIGINS=https://${{frontend.RAILWAY_PUBLIC_DOMAIN}}`
+- [ ] No backend: `DJANGO_SUPERUSER_USERNAME` definida
+- [ ] No backend: `DJANGO_SUPERUSER_PASSWORD` definida (senha forte)
+- [ ] No backend: `DJANGO_SUPERUSER_EMAIL` definida
 - [ ] No frontend: `VITE_API_URL=https://${{backend.RAILWAY_PUBLIC_DOMAIN}}/api`
 - [ ] Testou localmente que `python manage.py runserver` ainda funciona
       com SQLite (fallback do settings)
