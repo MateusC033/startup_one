@@ -86,7 +86,7 @@ DEBUG=False
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 ALLOWED_HOSTS=${{RAILWAY_PUBLIC_DOMAIN}}
 CSRF_TRUSTED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}
-CORS_ALLOWED_ORIGINS=https://${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}
+CORS_ALLOWED_ORIGINS=https://${{frontend.RAILWAY_PUBLIC_DOMAIN}}
 ```
 
 **Como ler isso:**
@@ -95,8 +95,7 @@ CORS_ALLOWED_ORIGINS=https://${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}
 - `${{RAILWAY_PUBLIC_DOMAIN}}` sem prefixo de serviço — referência ao próprio
   serviço (equivalente a `${{backend.RAILWAY_PUBLIC_DOMAIN}}` quando configurado
   dentro do serviço `backend`)
-- `${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}` — aspas porque o nome tem hífen; pega
-  o domínio público do serviço frontend
+- `${{frontend.RAILWAY_PUBLIC_DOMAIN}}` — pega o domínio público do serviço frontend
 
 **Vantagens:**
 - Se Railway regenerar o domínio (ou se recriarmos um serviço), as referências
@@ -110,7 +109,7 @@ As referências acima assumem que os serviços se chamam exatamente:
 | Serviço  | Nome esperado |
 |---|---|
 | Backend  | `backend` |
-| Frontend | `top-filme` |
+| Frontend | `frontend` |
 | Postgres | `Postgres` |
 
 Se algum tiver outro nome no Railway, ajustar as referências ou renomear o
@@ -169,7 +168,7 @@ e que dá para navegar.
 
 ### 4.1 Configurar VITE_API_URL
 
-1. Serviço **top-filme** no Railway → aba **Variables**
+1. Serviço **frontend** no Railway → aba **Variables**
 2. Adicionar (via Raw Editor ou "+ New Variable"):
    ```
    VITE_API_URL=https://${{backend.RAILWAY_PUBLIC_DOMAIN}}/api
@@ -184,7 +183,7 @@ e que dá para navegar.
 ### 4.2 Confirmar CORS
 
 Como `CORS_ALLOWED_ORIGINS` do backend já usa
-`${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}` (Fase 2.1), a configuração é
+`${{frontend.RAILWAY_PUBLIC_DOMAIN}}` (Fase 2.1), a configuração é
 automática e não precisa de ajuste. Qualquer regeneração de domínio no
 frontend é propagada no próximo redeploy do backend.
 
@@ -283,13 +282,13 @@ redeployar — a Landing e páginas estáticas voltam a funcionar (sem backend).
 - [ ] `backend/topfilme/settings.py` lendo env vars com fallback dev
 - [ ] Postgres criado no Railway (nome do serviço: `Postgres`)
 - [ ] Backend criado no Railway com Root Directory `backend` (nome do serviço: `backend`)
-- [ ] Serviço do frontend confirmado com nome `top-filme`
+- [ ] Serviço do frontend confirmado com nome `frontend`
 - [ ] No backend: `SECRET_KEY` gerada e configurada
 - [ ] No backend: `DEBUG=False`
 - [ ] No backend: `DATABASE_URL=${{Postgres.DATABASE_URL}}`
 - [ ] No backend: `ALLOWED_HOSTS=${{RAILWAY_PUBLIC_DOMAIN}}`
 - [ ] No backend: `CSRF_TRUSTED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}`
-- [ ] No backend: `CORS_ALLOWED_ORIGINS=https://${{"top-filme".RAILWAY_PUBLIC_DOMAIN}}`
+- [ ] No backend: `CORS_ALLOWED_ORIGINS=https://${{frontend.RAILWAY_PUBLIC_DOMAIN}}`
 - [ ] No frontend: `VITE_API_URL=https://${{backend.RAILWAY_PUBLIC_DOMAIN}}/api`
 - [ ] Testou localmente que `python manage.py runserver` ainda funciona
       com SQLite (fallback do settings)
