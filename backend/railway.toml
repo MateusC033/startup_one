@@ -2,15 +2,14 @@
 builder = "nixpacks"
 
 [deploy]
-# Comando de release roda ANTES do start.
-# - migrate: aplica migrations (idempotente — pula se já aplicadas)
-# - collectstatic: coleta arquivos para o whitenoise servir admin
-releaseCommand = "python manage.py migrate --no-input && python manage.py collectstatic --no-input"
+# migrate + collectstatic + gunicorn no startCommand.
+# Motivo: a rede privada do Railway (para falar com Postgres) só está
+# disponível quando o container está em execução, não durante o build.
+# Rodar migrate no release/build falha com DNS error em postgres.railway.internal.
+# Alternativa: tudo no start — migrate é idempotente, collectstatic também.
+startCommand = "python manage.py migrate --no-input && python manage.py collectstatic --no-input && gunicorn topfilme.wsgi:application --log-file - --bind 0.0.0.0:$PORT"
 
-# Comando de start do web server (produção com gunicorn)
-startCommand = "gunicorn topfilme.wsgi:application --log-file - --bind 0.0.0.0:$PORT"
-
-# Health check — Django responde em / se ALLOWED_HOSTS liberar; usamos /admin/login/
+# Health check — /admin/login/ é a rota mais confiável do Django
 healthcheckPath = "/admin/login/"
 healthcheckTimeout = 60
 
