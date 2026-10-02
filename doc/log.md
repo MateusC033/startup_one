@@ -495,3 +495,173 @@ chore(dashboard): ajusta rodapé com aviso acadêmico FIAP
 - Múltiplos usuários por conta empresa
 
 ---
+
+## 2026-10-02 — Sessão 5 (deploy em produção com backend + Postgres)
+
+Sessão final: colocar o sistema completo no ar — frontend atualizado,
+backend Django com Postgres gerenciado, tudo acessível ao avaliador
+via link do Railway.
+
+### Preparação do backend para produção
+
+**`backend/topfilme/settings.py` reescrito como dinâmico:**
+- Lê `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `DATABASE_URL`,
+  `CORS_ALLOWED_ORIGINS`, `CSRF_TRUSTED_ORIGINS` de env vars
+- Fallback para valores de dev (SQLite + localhost) quando vars
+  não existem — dev local continua funcionando sem mudanças
+- `dj_database_url.parse(DATABASE_URL)` em prod, SQLite local
+  quando vazio
+- Whitenoise middleware adicionado para servir admin estático
+- Em `DEBUG=False`: SECURE_PROXY_SSL_HEADER (Railway), SECURE_SSL_REDIRECT,
+  cookies seguros
+
+**Arquivos criados:**
+- `backend/requirements.txt` enxuto (Django 4.2, DRF, cors-headers,
+  dj-database-url, psycopg2-binary, gunicorn, whitenoise)
+- `backend/Procfile` (release command + web command)
+- `backend/railway.toml` (configuração nativa Railway)
+- `backend/runtime.txt` (`python-3.11.9`)
+- `backend/.env.example` (template com variáveis esperadas)
+- `backend/api/management/commands/ensure_superuser.py` (opcional,
+  idempotente — para quando precisar provisionar admin automaticamente)
+- `top-filme/.env.example` (template com `VITE_API_URL`)
+
+**`doc/deploy.md` — guia passo-a-passo:**
+- Fase 1: criar Postgres + Backend no Railway
+- Fase 2: configurar env vars **via Railway Reference Variables**
+  (não domínios hard-coded)
+- Fase 3: push + observar deploy
+- Fase 4: configurar `VITE_API_URL` do frontend com referência ao backend
+- Fase 5: validação end-to-end
+- Erros comuns + rollback de emergência + checklist
+
+### Railway Reference Variables
+
+Em vez de copiar domínios literais (que podem mudar), tudo via
+referência dinâmica:
+
+```
+# Backend
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+ALLOWED_HOSTS=${{RAILWAY_PUBLIC_DOMAIN}}
+CSRF_TRUSTED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}
+CORS_ALLOWED_ORIGINS=https://${{frontend.RAILWAY_PUBLIC_DOMAIN}}
+
+# Frontend
+VITE_API_URL=https://${{backend.RAILWAY_PUBLIC_DOMAIN}}/api
+```
+
+Nomes dos serviços no Railway: `backend`, `frontend`, `Postgres`.
+
+### Primeira sequência de deploys (vários erros corrigidos iterativamente)
+
+**Erro 1 — build do pip quebrando:**
+Build do Railway tentava instalar 113 dependências do pip global
+(jupyter, boto3, pandas, etc.) que vieram de um `pip freeze` executado
+no Python global do sistema, não no venv. Correção: reescrever
+`requirements.txt` com apenas as 7 deps essenciais.
+
+**Erro 2 — CORS com domínio privado:**
+Para evitar aviso de egress do Railway, variáveis de domínio foram
+trocadas para `RAILWAY_PRIVATE_DOMAIN`. Mas `ALLOWED_HOSTS`,
+`CORS_ALLOWED_ORIGINS` e `CSRF_TRUSTED_ORIGINS` precisam do domínio
+público — essas variáveis são **declarativas** (comparadas com headers
+dos requests), não estabelecem conexão. Usar PRIVATE_DOMAIN fazia o
+Django recusar com `DisallowedHost` e `corsheaders.E013`.
+Correção: reverter para `RAILWAY_PUBLIC_DOMAIN` nessas três.
+
+**Erro 3 — migrate rodando no build:**
+Nixpacks estava interpretando o `release:` do Procfile como step do
+Dockerfile (`RUN python manage.py migrate`). Durante o build, a rede
+privada do Railway não está disponível → DNS do `postgres.railway.internal`
+falhava. Correção: mover `migrate && collectstatic` para o `startCommand`
+em vez de releaseCommand — roda quando o container inicia, com rede
+disponível.
+
+**Erro 4 — Custom Start Command do painel sobrescrevendo arquivo:**
+O usuário havia preenchido manualmente o Custom Start Command no painel
+do Railway com apenas `gunicorn`. Esse valor tem precedência sobre o
+`railway.toml`. Nosso `startCommand` com `migrate && collectstatic`
+não era usado. Correção: atualizar o Custom Start Command no painel
+para incluir migrate + collectstatic antes do gunicorn.
+
+### Serviço do frontend
+
+- Nomeado inicialmente como `fronted` (typo), depois renomeado para
+  `frontend` para bater com as referências do backend
+- Domínio público gerado automaticamente pelo Railway
+- `VITE_API_URL` configurado com referência ao backend
+
+### Validação em produção
+
+Após todos os fixes, deploy ficou **Active**. Teste end-to-end:
+- Landing B2C carregou corretamente
+- Fluxo de cadastro criou usuário no Postgres de produção
+- Fluxo B2B navegável (landing, serviços, login empresa)
+- Dashboard com gating funcional
+
+### Bug detectado pós-deploy: "12 análises" em contas novas
+
+Reportado pelo usuário: ao criar conta nova (0 análises reais), a Home
+mostrava "12 análises feitas" na seção "Seu perfil".
+
+**Causa:** linha 181 do `Home.jsx`:
+```js
+const total = totalReal || 12
+```
+O operador `||` considera `0` como falsy, então o fallback mockado
+aparecia para conta nova. Também o humor dominante caía nos valores
+mockados (42% Sentir algo etc.) em vez de refletir conta vazia.
+
+**Correção em `PerfilEmocional`:**
+- Distingue `carregando` (perfilReal === null) de `vazio` (total === 0)
+- `total` agora usa `??` e respeita o 0 real do backend
+- `humoresPadrao` com zeros em vez de 42/25/21/12
+- `dominante` só mostra quando `valor > 0`; senão mostra
+  "Faça sua primeira análise" para contas vazias ou "—" durante loading
+
+Backend `/api/perfil/me` já retornava corretamente `total=0`,
+`humor_dominante=None`, `distribuicao` com zeros. Bug era puro no
+frontend.
+
+### Estado do repositório ao encerrar
+
+```
+branch: master | último commit: 2493f3f
+fix(home): corrige "12 análises" aparecendo em contas novas
+```
+
+Últimos commits principais:
+- `2493f3f` fix(home): corrige "12 análises" em contas novas
+- `bf5e925` fix(deploy): move migrate+collectstatic do release para o start
+- `fd690d2` fix(deploy): corrige requirements.txt com dependências enxutas
+- `1c3a249` chore(deploy): simplifica para o mínimo necessário
+- `126942f` docs(deploy): usa Railway Reference Variables em vez de domínios
+- `3d0f2d6` feat(deploy): prepara backend para Railway + Postgres
+
+### Decisões de produção
+
+- **Banco vazio em produção** (deliberado) — o avaliador vai criar
+  conta e ver dado próprio aparecer; nenhum dado pré-populado
+- **Backend sem seed automático** — comando `seed` existe mas só roda
+  via Railway CLI local (opcional)
+- **Admin do Django sem superuser pré-criado** — o `ensure_superuser`
+  está no projeto como ferramenta opcional, não ligado ao release
+  por padrão
+- **Deploy automático via push** — qualquer commit em `master` dispara
+  rebuild no Railway
+
+### Status final: sistema em produção, pronto para avaliação
+
+- **Frontend:** `https://startupone-production.up.railway.app`
+- **Backend:** `https://backend-production-888f.up.railway.app/api/*`
+- **Postgres:** gerenciado pelo Railway, só o backend acessa
+- Fluxo B2C completo navegável
+- Fluxo B2B completo navegável
+- Dados persistem em Postgres de produção
+- LGPD tratada no cadastro
+- Design polido em ambos os lados
+
+Link entregue para avaliação da FIAP junto com o pitch gravado.
+
+---
